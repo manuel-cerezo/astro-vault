@@ -99,13 +99,23 @@ const vault = await getVault<CollectionEntry<'notes'>>();
 const { Content } = await render(note);
 ---
 
-<VaultTree vault={vault} currentId={note.id} />
-<h1>{vault.titles.get(note.id)}</h1>
-<Content />
-<Backlinks vault={vault} id={note.id} />
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>{vault.titles.get(note.id)}</title>
+  </head>
+  <body>
+    <VaultTree vault={vault} currentId={note.id} />
+    <h1>{vault.titles.get(note.id)}</h1>
+    <Content />
+    <Backlinks vault={vault} id={note.id} />
+  </body>
+</html>
 ```
 
-Render `vault.home` (your `index.md`) the same way from `src/pages/notes/index.astro`. [`examples/basic`](https://github.com/manuel-cerezo/astro-vault/tree/main/examples/basic) is a complete, working site you can copy.
+In a real site, move the markup into your own layout. Keep the `<meta charset="utf-8" />`: without it, accented characters in your notes render garbled.
+
+Add `src/content/notes/index.md` as the landing note and render `vault.home` the same way from `src/pages/notes/index.astro`. Without it, `/notes` itself returns a 404. [`examples/basic`](https://github.com/manuel-cerezo/astro-vault/tree/main/examples/basic) is a complete, working site you can copy.
 
 ### 5. Write in Obsidian
 
