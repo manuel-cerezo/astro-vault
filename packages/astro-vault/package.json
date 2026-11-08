@@ -1,6 +1,6 @@
 {
   "name": "astro-vault",
-  "version": "0.0.0",
+  "version": "0.0.0-development",
   "description": "Publish an Obsidian vault with any Astro site: wikilinks, image embeds, callouts, backlinks and a folder tree on top of content collections.",
   "type": "module",
   "license": "MIT",

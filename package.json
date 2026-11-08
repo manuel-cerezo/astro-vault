@@ -14,12 +14,15 @@
     "validate": "pnpm format:check && pnpm check && pnpm test && pnpm test:example",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
-    "changeset": "changeset"
+    "release": "git fetch origin && git push origin origin/develop:refs/heads/main"
   },
   "devDependencies": {
-    "@changesets/cli": "^3.0.3",
+    "@semantic-release/github": "^12.0.10",
+    "@semantic-release/npm": "^13.2.0",
+    "conventional-changelog-conventionalcommits": "^10.4.1",
     "prettier": "3.9.9",
     "prettier-plugin-astro": "1.1.1",
+    "semantic-release": "^25.0.9",
     "typescript": "^6.0.3"
   }
 }
