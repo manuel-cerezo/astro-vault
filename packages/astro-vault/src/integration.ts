@@ -23,6 +23,8 @@ export type { VaultOptions } from './config.ts';
 
 const VIRTUAL_ID = 'virtual:astro-vault/config';
 const RESOLVED_ID = `\0${VIRTUAL_ID}`;
+const CSS_ID = 'virtual:astro-vault/user-css';
+const RESOLVED_CSS_ID = `\0${CSS_ID}`;
 
 export default function vault(options: VaultOptions = {}): AstroIntegration {
   const config = resolveVaultConfig(options);
@@ -30,7 +32,7 @@ export default function vault(options: VaultOptions = {}): AstroIntegration {
   return {
     name: 'astro-vault',
     hooks: {
-      'astro:config:setup': ({ config: astroConfig, updateConfig, logger }) => {
+      'astro:config:setup': ({ config: astroConfig, updateConfig, injectRoute, logger }) => {
         const root = fileURLToPath(astroConfig.root);
         const vaultDir = resolve(root, config.dir);
         const index = createVaultIndex(vaultDir, { draftProperty: config.draftProperty });
@@ -78,13 +80,30 @@ export default function vault(options: VaultOptions = {}): AstroIntegration {
           trailingSlash: astroConfig.trailingSlash
         });
 
+        if (config.pages) {
+          const base = config.basePath === '/' ? '' : config.basePath;
+          // One rest route serves the landing page (no slug) and every note.
+          injectRoute({ pattern: `${base}/[...slug]`, entrypoint: 'astro-vault/pages/note.astro', prerender: true });
+        }
+
+        // `customCss` files, imported by the built-in layout.
+        const userCss = config.customCss
+          .map((file) => `import ${JSON.stringify(resolve(root, file).split(sep).join('/'))};`)
+          .join('\n');
+
         updateConfig({
           vite: {
             plugins: [
               {
                 name: 'astro-vault:config',
-                resolveId: (id: string) => (id === VIRTUAL_ID ? RESOLVED_ID : undefined),
-                load: (id: string) => (id === RESOLVED_ID ? `export default ${runtimeConfig};` : undefined),
+                resolveId: (id: string) =>
+                  id === VIRTUAL_ID ? RESOLVED_ID : id === CSS_ID ? RESOLVED_CSS_ID : undefined,
+                load: (id: string) =>
+                  id === RESOLVED_ID
+                    ? `export default ${runtimeConfig};`
+                    : id === RESOLVED_CSS_ID
+                      ? userCss
+                      : undefined,
                 configureServer(server) {
                   // New, renamed or deleted notes change how links resolve.
                   const onChange = (file: string) => {

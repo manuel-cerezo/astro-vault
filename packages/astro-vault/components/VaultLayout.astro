@@ -1,0 +1,132 @@
+---
+/**
+ * The page layout of the built-in pages: sidebar with the folder tree, the
+ * note, table of contents, backlinks and previous / next. Also usable from
+ * your own pages:
+ *
+ *   <VaultLayout vault={vault} note={note} headings={headings}><Content /></VaultLayout>
+ *
+ * Slots: `head` (extra tags in <head>), `before-content` and `after-content`.
+ */
+import 'astro-vault/styles.css';
+import 'astro-vault/theme.css';
+import 'virtual:astro-vault/user-css';
+
+import type { Vault, VaultEntry } from 'astro-vault/runtime';
+
+import Backlinks from './Backlinks.astro';
+import PrevNext from './PrevNext.astro';
+import Toc from './Toc.astro';
+import VaultTree from './VaultTree.astro';
+
+interface Props {
+  vault: Vault<any>;
+  /** The note being shown; leave it out for the generated landing page. */
+  note?: VaultEntry;
+  /** Headings from `render(note)`, for the table of contents. */
+  headings?: { depth: number; slug: string; text: string }[];
+  /** Page heading; defaults to the note's title. */
+  title?: string;
+}
+
+const { vault, note, headings = [], title: titleProp } = Astro.props;
+const id = note?.id ?? vault.home?.id ?? '';
+const isHome = !note || vault.isHome(note.id);
+const title = titleProp ?? (note ? (vault.titles.get(note.id) ?? note.id) : vault.title);
+const pageTitle = isHome ? vault.title : `${title} · ${vault.title}`;
+const data = (note?.data ?? {}) as {
+  description?: string;
+  date?: Date;
+  updated?: Date;
+  tags?: string[];
+};
+const folders = note ? vault.foldersOf(note) : [];
+const lastChange = data.updated ?? data.date;
+const formatDate = new Intl.DateTimeFormat(vault.lang, { dateStyle: 'long' });
+const homeHref = vault.href(vault.home?.id ?? 'index');
+---
+
+<html lang={vault.lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    {data.description && <meta name="description" content={data.description} />}
+    <meta name="color-scheme" content="light dark" />
+    <slot name="head" />
+  </head>
+  <body class="vault">
+    <div class="vault-shell">
+      <aside class="vault-sidebar">
+        <a class="vault-brand" href={homeHref}>
+          {vault.title}
+        </a>
+        <nav aria-label={vault.title}>
+          {vault.home && (
+            <a class="vault-home" href={homeHref} aria-current={isHome ? 'page' : undefined}>
+              {vault.labels.home}
+            </a>
+          )}
+          <VaultTree vault={vault} currentId={id} />
+        </nav>
+      </aside>
+
+      <main>
+        <details class="vault-mobile-nav">
+          <summary>{vault.labels.browse}</summary>
+          <nav aria-label={vault.title}>
+            {vault.home && (
+              <a class="vault-home" href={homeHref} aria-current={isHome ? 'page' : undefined}>
+                {vault.labels.home}
+              </a>
+            )}
+            <VaultTree vault={vault} currentId={id} />
+          </nav>
+        </details>
+
+        <article>
+          <header>
+            {folders.length > 0 && (
+              <p class="vault-breadcrumbs">
+                {folders.map((folder, index) => (
+                  <>
+                    {index > 0 && <span aria-hidden="true">/</span>}
+                    <span>{folder}</span>
+                  </>
+                ))}
+              </p>
+            )}
+            <h1 class="vault-title">{title}</h1>
+            {data.description && <p class="vault-description">{data.description}</p>}
+            {(lastChange || (data.tags?.length ?? 0) > 0) && (
+              <div class="vault-meta">
+                {lastChange && (
+                  <span>
+                    {vault.labels.updated}{' '}
+                    <time datetime={lastChange.toISOString()}>{formatDate.format(lastChange)}</time>
+                  </span>
+                )}
+                {data.tags?.map((tag) => (
+                  <span class="vault-tag">#{tag}</span>
+                ))}
+              </div>
+            )}
+          </header>
+
+          <slot name="before-content" />
+          <div class="vault-prose">
+            <slot />
+          </div>
+          <slot name="after-content" />
+        </article>
+
+        {note && !isHome && <Backlinks vault={vault} id={note.id} />}
+        {id && <PrevNext vault={vault} id={id} />}
+      </main>
+
+      <aside class="vault-toc">
+        <Toc vault={vault} headings={headings} />
+      </aside>
+    </div>
+  </body>
+</html>

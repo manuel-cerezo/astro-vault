@@ -1,0 +1,33 @@
+---
+/**
+ * Table of contents from the headings `render(note)` returns. Unstyled unless
+ * you load `astro-vault/theme.css`; target `[data-vault-toc]` and `[data-depth]`.
+ */
+import type { Vault } from 'astro-vault/runtime';
+
+interface Props {
+  vault: Vault<any>;
+  headings: { depth: number; slug: string; text: string }[];
+  /** Heading levels to list. Default: 2 and 3. */
+  depths?: number[];
+  class?: string;
+}
+
+const { vault, headings, depths = [2, 3], class: className } = Astro.props;
+const items = headings.filter((heading) => depths.includes(heading.depth));
+---
+
+{items.length > 0 && (
+  <nav data-vault-toc class={className} aria-labelledby="vault-toc-title">
+    <p id="vault-toc-title" class="vault-toc-title">
+      <slot name="title">{vault.labels.onThisPage}</slot>
+    </p>
+    <ul>
+      {items.map((heading) => (
+        <li data-depth={heading.depth}>
+          <a href={`#${heading.slug}`}>{heading.text}</a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+)}

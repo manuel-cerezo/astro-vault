@@ -9,6 +9,10 @@
  * export default defineVaultConfig({ dir: 'src/content/notes', basePath: '/notes' });
  * ```
  */
+import { resolveLabels, type VaultLabels } from './labels.ts';
+
+export type { VaultLabels } from './labels.ts';
+
 export interface VaultOptions {
   /** Vault folder, relative to the project root. Default: `src/content/notes`. */
   dir?: string;
@@ -36,6 +40,20 @@ export interface VaultOptions {
    * `astro-vault/satteri` yourself. Default: `auto`.
    */
   markdown?: 'auto' | 'manual';
+  /**
+   * Publish every note at `basePath` with the built-in, ready-styled pages:
+   * folder tree, table of contents, backlinks, previous / next and dark mode.
+   * Leave it off to render the notes with your own pages. Default: `false`.
+   */
+  pages?: boolean;
+  /** Name of the vault, shown in the built-in pages' sidebar and titles. Default: `Notes`. */
+  title?: string;
+  /** Interface language of the components and pages: `en` and `es` are built in. Default: `en`. */
+  lang?: string;
+  /** Override any interface text, e.g. `{ backlinks: 'Mentioned in' }`. */
+  labels?: Partial<VaultLabels>;
+  /** Stylesheets added to the built-in pages, relative to the project root, e.g. `['./src/styles/notes.css']`. */
+  customCss?: string[];
 }
 
 export interface ResolvedVaultConfig {
@@ -48,6 +66,11 @@ export interface ResolvedVaultConfig {
   wikilinks: { linkClass: string; missingClass: string };
   callouts: boolean;
   markdown: 'auto' | 'manual';
+  pages: boolean;
+  title: string;
+  lang: string;
+  labels: VaultLabels;
+  customCss: string[];
 }
 
 /** Typed identity helper for a shared `vault.config.ts`. */
@@ -74,6 +97,11 @@ export function resolveVaultConfig(options: VaultOptions = {}): ResolvedVaultCon
       missingClass: options.wikilinks?.missingClass ?? 'wikilink-missing'
     },
     callouts: options.callouts ?? true,
-    markdown: options.markdown ?? 'auto'
+    markdown: options.markdown ?? 'auto',
+    pages: options.pages ?? false,
+    title: options.title ?? 'Notes',
+    lang: options.lang ?? 'en',
+    labels: resolveLabels(options.lang ?? 'en', options.labels),
+    customCss: options.customCss ?? []
   };
 }

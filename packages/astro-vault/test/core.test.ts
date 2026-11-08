@@ -158,6 +158,14 @@ test('a note without a title property is named after its file', () => {
   assert.equal(noteTitle('Ideas/Jardín digital.md', 'Mi jardín'), 'Mi jardín');
 });
 
+test('labels come in English and Spanish and take overrides', () => {
+  assert.equal(resolveVaultConfig().labels.backlinks, 'Linked from');
+  assert.equal(resolveVaultConfig({ lang: 'es-ES' }).labels.backlinks, 'Enlazan aquí');
+  assert.equal(resolveVaultConfig({ lang: 'fr' }).labels.next, 'Next');
+  assert.equal(resolveVaultConfig({ lang: 'es', labels: { next: 'Sigue' } }).labels.next, 'Sigue');
+  assert.equal(resolveVaultConfig().pages, false);
+});
+
 test('the config fills defaults and rejects a relative base path', () => {
   const config = resolveVaultConfig({ dir: './vault/', basePath: '/garden/' });
   assert.equal(config.dir, 'vault');

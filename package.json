@@ -10,7 +10,7 @@
     "build": "pnpm --filter astro-vault build",
     "check": "pnpm --filter astro-vault check",
     "test": "pnpm --filter astro-vault test",
-    "test:example": "pnpm build && pnpm --filter example-basic build && pnpm --filter example-basic test",
+    "test:example": "pnpm build && pnpm --filter \"./examples/*\" build && pnpm --filter \"./examples/*\" test",
     "validate": "pnpm format:check && pnpm check && pnpm test && pnpm test:example",
     "format": "prettier . --write",
     "format:check": "prettier . --check",

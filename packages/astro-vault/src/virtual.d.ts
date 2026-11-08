@@ -8,6 +8,8 @@ declare module 'virtual:astro-vault/config' {
   export default config;
 }
 
+declare module 'virtual:astro-vault/user-css' {}
+
 // Only what this package uses; the full types come from the user's project at build time.
 declare module 'astro:content' {
   export function getCollection(collection: never): Promise<unknown[]>;

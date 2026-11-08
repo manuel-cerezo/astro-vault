@@ -17,8 +17,10 @@ import { createNoteResolver } from './core/resolve.ts';
 import { noteTitle, toPosix } from './core/slug.ts';
 import { buildNoteTree, folderContains, readingOrder, type NoteTreeNode } from './core/tree.ts';
 import { createNoteHref } from './core/urls.ts';
+import type { VaultLabels } from './labels.ts';
 
 export { folderContains };
+export type { VaultLabels } from './labels.ts';
 export type { NoteFolder, NoteLeaf, NoteTreeNode } from './core/tree.ts';
 
 /** The fields of a collection entry the vault reads. `CollectionEntry<'notes'>` satisfies it. */
@@ -35,6 +37,12 @@ export interface VaultEntry {
 }
 
 export interface Vault<Entry extends VaultEntry = VaultEntry> {
+  /** The vault name (`title` option). */
+  title: string;
+  /** Interface language (`lang` option). */
+  lang: string;
+  /** Interface text in that language, with your overrides. */
+  labels: VaultLabels;
   /** Published notes (drafts excluded), in collection order. */
   notes: Entry[];
   /** The landing note, when the vault has one. */
@@ -91,6 +99,9 @@ async function loadVault(): Promise<Vault> {
   const order = readingOrder(tree, home ? config.homeNote : undefined);
 
   return {
+    title: config.title,
+    lang: config.lang,
+    labels: config.labels,
     notes,
     home,
     tree,

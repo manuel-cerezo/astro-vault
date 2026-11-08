@@ -17,11 +17,11 @@ const { previous, next } = vault.neighbours(id);
 ---
 
 {(previous || next) && (
-  <nav data-vault-prev-next class={className} aria-label="Previous and next note">
+  <nav data-vault-prev-next class={className} aria-label={`${vault.labels.previous} / ${vault.labels.next}`}>
     {previous && (
       <a href={vault.href(previous)} rel="prev" data-direction="previous" class={linkClass}>
         <span data-label>
-          <slot name="previous">Previous</slot>
+          <slot name="previous">{vault.labels.previous}</slot>
         </span>
         <span data-title>{vault.titles.get(previous)}</span>
       </a>
@@ -29,7 +29,7 @@ const { previous, next } = vault.neighbours(id);
     {next && (
       <a href={vault.href(next)} rel="next" data-direction="next" class={linkClass}>
         <span data-label>
-          <slot name="next">Next</slot>
+          <slot name="next">{vault.labels.next}</slot>
         </span>
         <span data-title>{vault.titles.get(next)}</span>
       </a>

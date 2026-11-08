@@ -21,7 +21,7 @@ const links = (vault.backlinks.get(id) ?? []).map((source) => ({
 
 <section data-vault-backlinks class={className}>
   <slot name="title">
-    <h2>Linked from</h2>
+    <h2>{vault.labels.backlinks}</h2>
   </slot>
   {links.length > 0 ? (
     <ul>
@@ -35,7 +35,7 @@ const links = (vault.backlinks.get(id) ?? []).map((source) => ({
     </ul>
   ) : (
     <slot name="empty">
-      <p>No other note links here yet.</p>
+      <p>{vault.labels.noBacklinks}</p>
     </slot>
   )}
 </section>

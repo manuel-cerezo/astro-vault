@@ -1,0 +1,19 @@
+{
+  "name": "example-pages",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro check && astro build",
+    "preview": "astro preview",
+    "test": "node --test \"test/*.test.ts\""
+  },
+  "dependencies": {
+    "astro": "^7.4.7",
+    "astro-vault": "workspace:*"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.10",
+    "typescript": "^6.0.3"
+  }
+}

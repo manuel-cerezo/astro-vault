@@ -52,6 +52,22 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3
 
+  examples/pages:
+    dependencies:
+      astro:
+        specifier: ^7.4.7
+        version: 7.4.7(@types/node@24.19.2)(yaml@2.9.1)
+      astro-vault:
+        specifier: workspace:*
+        version: link:../../packages/astro-vault
+    devDependencies:
+      '@astrojs/check':
+        specifier: 0.9.10
+        version: 0.9.10(prettier-plugin-astro@1.1.1(@emnapi/core@2.0.0-beta.2)(@emnapi/runtime@2.0.0-beta.2)(prettier@3.9.9))(prettier@3.9.9)(typescript@6.0.3)
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
+
   packages/astro-vault:
     dependencies:
       '@astrojs/markdown-satteri':

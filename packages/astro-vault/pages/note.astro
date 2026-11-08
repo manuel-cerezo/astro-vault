@@ -1,0 +1,39 @@
+---
+/**
+ * The built-in pages (`vault({ pages: true })`): one route for the landing
+ * page at `basePath` and every note below it.
+ */
+import { getVault } from 'astro-vault/runtime';
+import { render } from 'astro:content';
+
+import VaultLayout from '../components/VaultLayout.astro';
+import VaultTree from '../components/VaultTree.astro';
+
+export async function getStaticPaths() {
+  const vault = await getVault();
+  return [
+    { params: { slug: undefined }, props: { id: vault.home?.id } },
+    ...vault.notes
+      .filter((note) => !vault.isHome(note.id))
+      .map((note) => ({ params: { slug: note.id }, props: { id: note.id } }))
+  ];
+}
+
+const vault = await getVault();
+const note = vault.notes.find((entry) => entry.id === Astro.props.id);
+const rendered = note ? await render(note as never) : undefined;
+const Content = rendered?.Content;
+---
+
+{note && Content ? (
+  <VaultLayout vault={vault} note={note} headings={rendered.headings}>
+    <Content />
+  </VaultLayout>
+) : (
+  <VaultLayout vault={vault} title={vault.title}>
+    <div class="vault-index">
+      <h2>{vault.labels.allNotes}</h2>
+      <VaultTree vault={vault} />
+    </div>
+  </VaultLayout>
+)}

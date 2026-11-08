@@ -53,12 +53,16 @@
     },
     "./components/*": "./components/*",
     "./styles.css": "./styles.css",
+    "./pages/*": "./pages/*",
+    "./theme.css": "./theme.css",
     "./package.json": "./package.json"
   },
   "files": [
     "dist",
     "components",
-    "styles.css"
+    "pages",
+    "styles.css",
+    "theme.css"
   ],
   "sideEffects": [
     "*.css"
