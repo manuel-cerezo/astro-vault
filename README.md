@@ -47,7 +47,7 @@ Add the collection, set `vault({ pages: true })` and write. The [quick start](./
 | `packages/astro-vault` | The npm package: integration, loader, Markdown plugin, runtime, components.           |
 | `examples/pages`       | The zero-config setup: `pages: true` and the notes. CI builds it and checks its HTML. |
 | `examples/basic`       | A site with its own layout and the components. CI builds it and checks its HTML.      |
-| `assets`               | Banner, images and promo video, generated from `assets/src/promo.html`.               |
+| `assets`               | Banner, screenshots and the promo video, made with Remotion in `assets/video`.        |
 
 ## Development
 

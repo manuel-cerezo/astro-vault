@@ -1,0 +1,14 @@
+# astro-vault launch video
+
+The overview video and the promo stills, built with [Remotion](https://www.remotion.dev/). The camera moves and the subtitles use [launch-video-kit](https://github.com/borjaperfra/launch-video-kit) by Borja Pérez (MIT), copied into `src/kit/` as its README suggests. The project's Claude Code skill for it lives in `.claude/skills/launch-video-kit/`.
+
+```sh
+npm install
+npm run studio   # preview and edit
+npm run render   # ../astro-vault-promo.mp4
+npm run stills   # ../banner.png, ../social.png, ../poster.png, ../logo.png
+```
+
+The site shots in `public/` are real screenshots of `examples/pages` at 1920 × 1080 and device scale 2, light and dark. Retake them when the theme changes.
+
+The video is silent on purpose: on social networks it plays muted, so on-screen text and subtitles carry it. launch-video-kit also covers voice-over (an OpenAI-compatible TTS endpoint) and music with ducking, if a version with sound is needed.

@@ -5,3 +5,4 @@ dist/
 .DS_Store
 # Obsidian settings when a fixture vault is opened in Obsidian
 .obsidian/
+assets/video/out/

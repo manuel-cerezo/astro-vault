@@ -2,3 +2,5 @@ pnpm-lock.yaml
 dist
 .astro
 CHANGELOG.md
+assets/video/src/kit
+.claude/skills/launch-video-kit

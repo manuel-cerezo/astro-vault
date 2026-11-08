@@ -1,20 +1,12 @@
 # Assets
 
-| File                    | Size        | Use                                                      |
-| ----------------------- | ----------- | -------------------------------------------------------- |
-| `banner.png`            | 2560 × 1280 | README header and GitHub social preview.                 |
-| `how.png`               | 3200 × 1800 | README: the same note in Obsidian and on the built site. |
-| `social.png`            | 2400 × 1350 | Image for posts on X, LinkedIn or Bluesky (16:9).        |
-| `logo.png`              | 1024 × 1024 | Avatar or icon.                                          |
-| `poster.png`            | 1920 × 1080 | Video thumbnail with a play button, linked from READMEs. |
-| `astro-vault-promo.mp4` | 1920 × 1080 | 25-second overview video (H.264, 30 fps, no audio).      |
+| File                    | Size        | Use                                                            |
+| ----------------------- | ----------- | -------------------------------------------------------------- |
+| `banner.png`            | 2560 × 1280 | README header and GitHub social preview.                       |
+| `social.png`            | 2400 × 1350 | Image for posts on X, LinkedIn or Bluesky (16:9).              |
+| `poster.png`            | 1920 × 1080 | Video thumbnail with a play button, linked from the READMEs.   |
+| `logo.png`              | 1024 × 1024 | Avatar or icon.                                                |
+| `astro-vault-promo.mp4` | 1920 × 1080 | 28-second overview (H.264, 30 fps, silent, with subtitles).    |
+| `theme-*.png`           | 2880 × 1800 | Real screenshots of the built-in pages: light, dark and phone. |
 
-Everything is generated from [`src/promo.html`](./src/promo.html). Open it in a browser with `?view=banner`, `how`, `social`, `logo` or `video&t=8` to preview one view.
-
-To regenerate, run the script from a folder where `playwright` (with Chromium) and `ffmpeg-static` are installed:
-
-```sh
-node path/to/assets/src/render.mjs           # images and video
-node path/to/assets/src/render.mjs images    # images only
-node path/to/assets/src/render.mjs preview 4 9.5 14   # single video frames
-```
+The video and the stills are made with [Remotion](https://www.remotion.dev/) in [`video/`](./video), using the camera and subtitle helpers from [launch-video-kit](https://github.com/borjaperfra/launch-video-kit) by Borja Pérez. The screenshots come from `examples/pages`.
