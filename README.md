@@ -18,16 +18,17 @@
 
 Publish an [Obsidian](https://obsidian.md) vault as part of any Astro site. You keep writing in Obsidian; `astro build` turns the vault into pages with:
 
-| Feature          | What you get                                                                     |
-| ---------------- | -------------------------------------------------------------------------------- |
-| **Wikilinks**    | `[[Note]]`, `[[Folder/Note]]`, `[[Note#Heading]]`, `[[Note\|label]]` and aliases |
-| **Image embeds** | `![[image.png]]` from anywhere in the vault, optimized by Astro                  |
-| **Callouts**     | `> [!tip] Title`, including foldable ones                                        |
-| **Backlinks**    | Every note knows which notes link to it                                          |
-| **Navigation**   | Folder tree, breadcrumbs and previous / next links                               |
-| **Your design**  | Content collections, `.md` and `.mdx`, no client JavaScript, unstyled components |
+| Feature              | What you get                                                                                |
+| -------------------- | ------------------------------------------------------------------------------------------- |
+| **Wikilinks**        | `[[Note]]`, `[[Folder/Note]]`, `[[Note#Heading]]`, `[[Note\|label]]` and aliases            |
+| **Image embeds**     | `![[image.png]]` from anywhere in the vault, optimized by Astro                             |
+| **Callouts**         | `> [!tip] Title`, including foldable ones                                                   |
+| **Backlinks**        | Every note knows which notes link to it                                                     |
+| **Navigation**       | Folder tree, breadcrumbs and previous / next links                                          |
+| **Your design**      | Content collections, `.md` and `.mdx`, no client JavaScript, unstyled components            |
+| **Ready-made pages** | `pages: true` publishes the vault with a clean theme, dark mode and English or Spanish text |
 
-![The same note in Obsidian and on the built site](./assets/how.png)
+![A note rendered by the built-in pages](./assets/theme-light.png)
 
 <a href="https://github.com/manuel-cerezo/astro-vault/raw/develop/assets/astro-vault-promo.mp4"><img src="./assets/poster.png" alt="Watch the 25-second overview video" width="100%"></a>
 
@@ -37,15 +38,16 @@ Publish an [Obsidian](https://obsidian.md) vault as part of any Astro site. You 
 npx astro add astro-vault
 ```
 
-Then follow the [quick start](./packages/astro-vault/README.md#quick-start) to add the collection and the pages, or copy the [example site](./examples/basic).
+Add the collection, set `vault({ pages: true })` and write. The [quick start](./packages/astro-vault/README.md#quick-start) has the two snippets, and [`examples/pages`](./examples/pages) is the same setup ready to copy. To use your own design, see [`examples/basic`](./examples/basic).
 
 ## Repository
 
-| Folder                 | Contents                                                                      |
-| ---------------------- | ----------------------------------------------------------------------------- |
-| `packages/astro-vault` | The npm package: integration, loader, Markdown plugin, runtime, components.   |
-| `examples/basic`       | A minimal Astro site that uses the package. CI builds it and checks its HTML. |
-| `assets`               | Banner, images and promo video, generated from `assets/src/promo.html`.       |
+| Folder                 | Contents                                                                              |
+| ---------------------- | ------------------------------------------------------------------------------------- |
+| `packages/astro-vault` | The npm package: integration, loader, Markdown plugin, runtime, components.           |
+| `examples/pages`       | The zero-config setup: `pages: true` and the notes. CI builds it and checks its HTML. |
+| `examples/basic`       | A site with its own layout and the components. CI builds it and checks its HTML.      |
+| `assets`               | Banner, images and promo video, generated from `assets/src/promo.html`.               |
 
 ## Development
 
