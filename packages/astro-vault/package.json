@@ -70,7 +70,7 @@
     "build": "tsc -p tsconfig.build.json",
     "check": "tsc --noEmit",
     "test": "node --test \"test/*.test.ts\"",
-    "prepublishOnly": "pnpm build"
+    "prepublishOnly": "tsc -p tsconfig.build.json"
   },
   "peerDependencies": {
     "astro": "^7.2.0"
