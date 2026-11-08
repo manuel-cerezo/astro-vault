@@ -1,5 +1,7 @@
 # astro-vault
 
+![astro-vault: publish your Obsidian vault with any Astro site](https://raw.githubusercontent.com/manuel-cerezo/astro-vault/develop/assets/banner.png)
+
 Publish an [Obsidian](https://obsidian.md) vault as part of any Astro site. You write in Obsidian and Astro builds the pages: `[[wikilinks]]`, `![[image]]` embeds, callouts, backlinks, a folder tree and previous / next links, all on top of Astro's own content collections.
 
 - **Your design, your pages.** astro-vault resolves links and builds the data. You render it with your own layout, or start from the unstyled components it ships.
@@ -7,6 +9,10 @@ Publish an [Obsidian](https://obsidian.md) vault as part of any Astro site. You 
 - **Static output.** Everything is resolved at build time. No client JavaScript is added.
 
 > Status: early `0.x`. The API may change between minor versions until 1.0.
+
+![The same note in Obsidian and on the built site](https://raw.githubusercontent.com/manuel-cerezo/astro-vault/develop/assets/how.png)
+
+[Watch the 25-second overview](https://github.com/manuel-cerezo/astro-vault/raw/develop/assets/astro-vault-promo.mp4).
 
 ## Quick start
 

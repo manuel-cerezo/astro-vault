@@ -1,6 +1,10 @@
 # astro-vault
 
+![astro-vault: publish your Obsidian vault with any Astro site](./assets/banner.png)
+
 Publish an Obsidian vault as part of any Astro site: wikilinks, image embeds, callouts, backlinks and a folder tree on top of content collections.
+
+![The same note in Obsidian and on the built site](./assets/how.png)
 
 **Documentation:** [packages/astro-vault/README.md](./packages/astro-vault/README.md)
 
