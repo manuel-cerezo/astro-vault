@@ -46,11 +46,18 @@ test('embedded images go through Astro image optimization', () => {
   assert.match(page('notes/guides/wikilinks/index.html'), /<img[^>]+src="\/_astro\/diagram\.[^"]+\.svg"/);
 });
 
-test('callouts get a type, a title and the fold marker', () => {
+test('callouts get a type and a title, and foldable ones open and close without JavaScript', () => {
   const html = page('notes/guides/callouts/index.html');
   assert.match(html, /<blockquote class="callout" data-callout="note">\s*<p class="callout-title">Note<\/p>/);
   assert.match(html, /<blockquote class="callout" data-callout="tip">\s*<p class="callout-title">Custom title<\/p>/);
-  assert.match(html, /<blockquote class="callout" data-callout="danger" data-callout-fold="-">/);
+  assert.match(
+    html,
+    /<details class="callout" data-callout="danger" data-callout-fold="-"><summary class="callout-title">Collapsed by default<\/summary>/
+  );
+  assert.match(
+    html,
+    /<details class="callout" data-callout="example" data-callout-fold="\+" open>.*?<a href="\/notes\/guides\/wikilinks" class="wikilink">Wikilinks<\/a>/
+  );
 });
 
 test('backlinks, the tree and previous / next come from the runtime', () => {

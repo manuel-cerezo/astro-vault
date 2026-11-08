@@ -1,26 +1,57 @@
 /*
- * Optional default styles for what the Markdown plugin outputs.
- * `import 'astro-vault/styles.css'` in a layout, then tune the variables:
+ * astro-vault content styles: wikilinks, missing links, embedded images and
+ * callouts. `import 'astro-vault/styles.css'` (the built-in pages already do).
  *
- *   :root { --vault-accent: rebeccapurple; }
+ * Every rule is wrapped in :where(), so any selector of yours wins. Tune the
+ * variables instead of rewriting rules:
  *
- * Every selector uses :where(), so your own CSS always wins.
+ *   :root { --vault-link: teal; --vault-callout-tip: 22 163 74; }
+ *
+ * Callout colours are space-separated RGB channels, like Obsidian's.
  */
 :root {
-  --vault-accent: #2563eb;
-  --vault-muted: #6b7280;
-  --vault-radius: 0.75rem;
-  --vault-callout-note: var(--vault-accent);
-  --vault-callout-info: #0891b2;
-  --vault-callout-tip: #16a34a;
-  --vault-callout-warning: #d97706;
-  --vault-callout-danger: #dc2626;
+  --vault-link: #2b59c3;
+  --vault-link-missing: #8a8780;
+  --vault-callout-radius: 6px;
+  --vault-callout-note: 43 89 195;
+  --vault-callout-abstract: 13 148 136;
+  --vault-callout-info: 43 89 195;
+  --vault-callout-todo: 43 89 195;
+  --vault-callout-tip: 13 148 136;
+  --vault-callout-success: 22 140 72;
+  --vault-callout-question: 196 106 13;
+  --vault-callout-warning: 196 106 13;
+  --vault-callout-danger: 200 50 60;
+  --vault-callout-example: 110 86 207;
+  --vault-callout-quote: 120 117 110;
 }
 
+@media (prefers-color-scheme: dark) {
+  :root {
+    --vault-link: #8fb0f5;
+    --vault-link-missing: #8a8780;
+    --vault-callout-note: 120 160 245;
+    --vault-callout-abstract: 70 200 185;
+    --vault-callout-info: 120 160 245;
+    --vault-callout-todo: 120 160 245;
+    --vault-callout-tip: 70 200 185;
+    --vault-callout-success: 90 200 120;
+    --vault-callout-question: 235 160 80;
+    --vault-callout-warning: 235 160 80;
+    --vault-callout-danger: 240 110 110;
+    --vault-callout-example: 170 150 245;
+    --vault-callout-quote: 170 166 158;
+  }
+}
+
+/* Links */
+
 :where(a.wikilink) {
-  color: var(--vault-accent);
-  text-decoration-color: color-mix(in oklab, var(--vault-accent) 35%, transparent);
-  text-underline-offset: 2px;
+  color: var(--vault-link);
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-decoration-color: color-mix(in srgb, currentColor 35%, transparent);
+  text-underline-offset: 0.2em;
 }
 
 :where(a.wikilink:hover) {
@@ -28,71 +59,149 @@
 }
 
 :where(.wikilink-missing) {
-  color: var(--vault-muted);
+  color: var(--vault-link-missing);
   cursor: help;
   text-decoration: underline dotted;
-  text-underline-offset: 2px;
+  text-underline-offset: 0.2em;
 }
 
-:where(blockquote.callout) {
+/* Callouts */
+
+:where(.callout) {
   --callout: var(--vault-callout-note);
-  margin: 1rem 0;
-  padding: 0.75rem 1rem;
-  border: 1px solid color-mix(in oklab, var(--callout) 25%, transparent);
-  border-left: 4px solid var(--callout);
-  border-radius: var(--vault-radius);
-  background: color-mix(in oklab, var(--callout) 8%, transparent);
+  --callout-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 20h4L19.5 8.5a2.1 2.1 0 0 0-3-3L5 17z'/%3E%3C/svg%3E");
+  display: block;
+  margin: 1.5em 0;
+  padding: 0.85em 1.1em;
+  border: 0;
+  border-radius: var(--vault-callout-radius);
+  background: rgb(var(--callout) / 0.07);
   font-style: normal;
+  quotes: none;
 }
 
-:where(blockquote.callout > :last-child) {
+:where(.callout > :last-child, .callout-content > :last-child) {
   margin-bottom: 0;
 }
 
-:where(blockquote.callout > .callout-title) {
-  margin: 0 0 0.25rem;
-  color: var(--callout);
+:where(.callout-title) {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  margin: 0 0 0.35em;
+  color: rgb(var(--callout));
   font-weight: 600;
+  line-height: 1.4;
 }
 
-:where(blockquote.callout:is([data-callout='info'], [data-callout='todo'])) {
+:where(.callout-title)::before {
+  content: '';
+  flex: none;
+  width: 1.05em;
+  height: 1.05em;
+  background: currentColor;
+  -webkit-mask: var(--callout-icon) center / contain no-repeat;
+  mask: var(--callout-icon) center / contain no-repeat;
+}
+
+/* Foldable callouts (`> [!type]-` and `> [!type]+`) are <details> elements. */
+:where(details.callout > summary) {
+  margin: 0;
+  cursor: pointer;
+  list-style: none;
+}
+
+:where(details.callout > summary)::-webkit-details-marker {
+  display: none;
+}
+
+:where(details.callout > summary)::after {
+  content: '';
+  width: 0.9em;
+  height: 0.9em;
+  margin-left: auto;
+  background: currentColor;
+  opacity: 0.7;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 6l6 6-6 6'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 6l6 6-6 6'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+  transition: transform 0.15s ease;
+}
+
+:where(details.callout[open] > summary)::after {
+  transform: rotate(90deg);
+}
+
+:where(details.callout[open] > .callout-content) {
+  margin-top: 0.35em;
+}
+
+/* Types: the same names and aliases Obsidian uses. */
+
+:where(.callout:is([data-callout='abstract'], [data-callout='summary'], [data-callout='tldr'])) {
+  --callout: var(--vault-callout-abstract);
+  --callout-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='5' y='4' width='14' height='17' rx='2'/%3E%3Cpath d='M9 9h6M9 13h6M9 17h3'/%3E%3C/svg%3E");
+}
+
+:where(.callout:is([data-callout='info'])) {
   --callout: var(--vault-callout-info);
+  --callout-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 11v5.5M12 7.5v.01'/%3E%3C/svg%3E");
 }
 
-:where(
-  blockquote.callout:is(
-      [data-callout='tip'],
-      [data-callout='hint'],
-      [data-callout='success'],
-      [data-callout='check'],
-      [data-callout='done']
-    )
-) {
+:where(.callout:is([data-callout='todo'])) {
+  --callout: var(--vault-callout-todo);
+  --callout-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M8.5 12.5l2.5 2.5 4.5-5'/%3E%3C/svg%3E");
+}
+
+:where(.callout:is([data-callout='tip'], [data-callout='hint'], [data-callout='important'])) {
   --callout: var(--vault-callout-tip);
+  --callout-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9.5 18h5M10.5 21h3M12 3a6 6 0 0 0-3.6 10.8c.7.5 1.1 1.3 1.1 2.2h5c0-.9.4-1.7 1.1-2.2A6 6 0 0 0 12 3z'/%3E%3C/svg%3E");
 }
 
-:where(
-  blockquote.callout:is(
-      [data-callout='warning'],
-      [data-callout='caution'],
-      [data-callout='attention'],
-      [data-callout='question'],
-      [data-callout='help'],
-      [data-callout='faq']
-    )
-) {
+:where(.callout:is([data-callout='success'], [data-callout='check'], [data-callout='done'])) {
+  --callout: var(--vault-callout-success);
+  --callout-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E");
+}
+
+:where(.callout:is([data-callout='question'], [data-callout='help'], [data-callout='faq'])) {
+  --callout: var(--vault-callout-question);
+  --callout-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M9.6 9.4a2.5 2.5 0 1 1 3.6 2.3c-.7.4-1.2 1-1.2 1.8v.5M12 17v.01'/%3E%3C/svg%3E");
+}
+
+:where(.callout:is([data-callout='warning'], [data-callout='caution'], [data-callout='attention'])) {
   --callout: var(--vault-callout-warning);
+  --callout-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10.3 4.2 2.6 17.5A2 2 0 0 0 4.3 20.5h15.4a2 2 0 0 0 1.7-3L13.7 4.2a2 2 0 0 0-3.4 0z'/%3E%3Cpath d='M12 9.5v4M12 17v.01'/%3E%3C/svg%3E");
 }
 
 :where(
-  blockquote.callout:is(
-      [data-callout='danger'],
-      [data-callout='error'],
-      [data-callout='bug'],
-      [data-callout='failure'],
-      [data-callout='fail'],
-      [data-callout='missing']
-    )
+  .callout:is(
+    [data-callout='failure'],
+    [data-callout='fail'],
+    [data-callout='missing'],
+    [data-callout='danger'],
+    [data-callout='error'],
+    [data-callout='bug']
+  )
 ) {
   --callout: var(--vault-callout-danger);
+  --callout-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M9 9l6 6M15 9l-6 6'/%3E%3C/svg%3E");
+}
+
+:where(.callout:is([data-callout='example'])) {
+  --callout: var(--vault-callout-example);
+  --callout-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01'/%3E%3C/svg%3E");
+}
+
+:where(.callout:is([data-callout='quote'], [data-callout='cite'])) {
+  --callout: var(--vault-callout-quote);
+  --callout-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 7h4v4c0 3-1.3 5-4 6M14 7h4v4c0 3-1.3 5-4 6'/%3E%3C/svg%3E");
+}
+
+/* Embedded images */
+
+:where(.vault-content img, .vault-prose img) {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
 }

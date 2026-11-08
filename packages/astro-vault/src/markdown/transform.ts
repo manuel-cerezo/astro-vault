@@ -10,7 +10,7 @@ export interface MdastNode {
   url?: string;
   alt?: string;
   children?: MdastNode[];
-  data?: { hProperties?: Record<string, unknown> };
+  data?: { hName?: string; hProperties?: Record<string, unknown> };
 }
 
 const escapeHtml = (value: string) =>

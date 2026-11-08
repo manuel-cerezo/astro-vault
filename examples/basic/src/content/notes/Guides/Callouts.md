@@ -16,3 +16,6 @@ tags: [syntax]
 
 > [!danger]- Collapsed by default
 > The fold marker is kept in `data-callout-fold` for your own styles or scripts.
+
+> [!example]+ Open by default
+> Links still resolve inside: [[Wikilinks]].
