@@ -1,12 +1,43 @@
+<p align="center">
+  <img src="./assets/banner.png" alt="astro-vault: publish your Obsidian vault with any Astro site" width="100%">
+</p>
+
+<p align="center">
+  <a href="https://www.npmjs.com/package/astro-vault"><img alt="npm version" src="https://img.shields.io/npm/v/astro-vault?color=8b5cf6&label=npm"></a>
+  <a href="https://github.com/manuel-cerezo/astro-vault/actions/workflows/ci.yml"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/manuel-cerezo/astro-vault/ci.yml?branch=develop&label=CI"></a>
+  <img alt="Astro 7" src="https://img.shields.io/badge/Astro-7-fb923c">
+  <a href="./LICENSE"><img alt="MIT license" src="https://img.shields.io/badge/license-MIT-34d399"></a>
+</p>
+
+<p align="center">
+  <b>Write in Obsidian. Publish with Astro.</b><br>
+  <a href="./packages/astro-vault/README.md">Documentation</a> · <a href="./examples/basic">Example site</a> · <a href="https://www.npmjs.com/package/astro-vault">npm</a>
+</p>
+
 # astro-vault
 
-![astro-vault: publish your Obsidian vault with any Astro site](./assets/banner.png)
+Publish an [Obsidian](https://obsidian.md) vault as part of any Astro site. You keep writing in Obsidian; `astro build` turns the vault into pages with:
 
-Publish an Obsidian vault as part of any Astro site: wikilinks, image embeds, callouts, backlinks and a folder tree on top of content collections.
+| Feature          | What you get                                                                     |
+| ---------------- | -------------------------------------------------------------------------------- |
+| **Wikilinks**    | `[[Note]]`, `[[Folder/Note]]`, `[[Note#Heading]]`, `[[Note\|label]]` and aliases |
+| **Image embeds** | `![[image.png]]` from anywhere in the vault, optimized by Astro                  |
+| **Callouts**     | `> [!tip] Title`, including foldable ones                                        |
+| **Backlinks**    | Every note knows which notes link to it                                          |
+| **Navigation**   | Folder tree, breadcrumbs and previous / next links                               |
+| **Your design**  | Content collections, `.md` and `.mdx`, no client JavaScript, unstyled components |
 
 ![The same note in Obsidian and on the built site](./assets/how.png)
 
-**Documentation:** [packages/astro-vault/README.md](./packages/astro-vault/README.md)
+<a href="https://github.com/manuel-cerezo/astro-vault/raw/develop/assets/astro-vault-promo.mp4"><img src="./assets/poster.png" alt="Watch the 25-second overview video" width="100%"></a>
+
+## Get started
+
+```sh
+npx astro add astro-vault
+```
+
+Then follow the [quick start](./packages/astro-vault/README.md#quick-start) to add the collection and the pages, or copy the [example site](./examples/basic).
 
 ## Repository
 
@@ -14,6 +45,7 @@ Publish an Obsidian vault as part of any Astro site: wikilinks, image embeds, ca
 | ---------------------- | ----------------------------------------------------------------------------- |
 | `packages/astro-vault` | The npm package: integration, loader, Markdown plugin, runtime, components.   |
 | `examples/basic`       | A minimal Astro site that uses the package. CI builds it and checks its HTML. |
+| `assets`               | Banner, images and promo video, generated from `assets/src/promo.html`.       |
 
 ## Development
 

@@ -1,6 +1,20 @@
-# astro-vault
+<p align="center">
+  <img src="https://raw.githubusercontent.com/manuel-cerezo/astro-vault/develop/assets/banner.png" alt="astro-vault: publish your Obsidian vault with any Astro site" width="100%">
+</p>
 
-![astro-vault: publish your Obsidian vault with any Astro site](https://raw.githubusercontent.com/manuel-cerezo/astro-vault/develop/assets/banner.png)
+<p align="center">
+  <a href="https://www.npmjs.com/package/astro-vault"><img alt="npm version" src="https://img.shields.io/npm/v/astro-vault?color=8b5cf6&label=npm"></a>
+  <a href="https://github.com/manuel-cerezo/astro-vault/actions/workflows/ci.yml"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/manuel-cerezo/astro-vault/ci.yml?branch=develop&label=CI"></a>
+  <img alt="Astro 7" src="https://img.shields.io/badge/Astro-7-fb923c">
+  <a href="https://github.com/manuel-cerezo/astro-vault/blob/develop/LICENSE"><img alt="MIT license" src="https://img.shields.io/badge/license-MIT-34d399"></a>
+</p>
+
+<p align="center">
+  <b>Write in Obsidian. Publish with Astro.</b><br>
+  <a href="#quick-start">Quick start</a> · <a href="#supported-syntax">Syntax</a> · <a href="#options">Options</a> · <a href="#runtime-api">API</a> · <a href="https://github.com/manuel-cerezo/astro-vault/tree/develop/examples/basic">Example site</a>
+</p>
+
+# astro-vault
 
 Publish an [Obsidian](https://obsidian.md) vault as part of any Astro site. You write in Obsidian and Astro builds the pages: `[[wikilinks]]`, `![[image]]` embeds, callouts, backlinks, a folder tree and previous / next links, all on top of Astro's own content collections.
 
@@ -12,7 +26,7 @@ Publish an [Obsidian](https://obsidian.md) vault as part of any Astro site. You 
 
 ![The same note in Obsidian and on the built site](https://raw.githubusercontent.com/manuel-cerezo/astro-vault/develop/assets/how.png)
 
-[Watch the 25-second overview](https://github.com/manuel-cerezo/astro-vault/raw/develop/assets/astro-vault-promo.mp4).
+<a href="https://github.com/manuel-cerezo/astro-vault/raw/develop/assets/astro-vault-promo.mp4"><img src="https://raw.githubusercontent.com/manuel-cerezo/astro-vault/develop/assets/poster.png" alt="Watch the 25-second overview video" width="100%"></a>
 
 ## Quick start
 

@@ -27,7 +27,8 @@ const IMAGES = {
   banner: { width: 1280, height: 640 },
   how: { width: 1600, height: 900 },
   social: { width: 1200, height: 675 },
-  logo: { width: 512, height: 512 }
+  logo: { width: 512, height: 512 },
+  poster: { width: 1920, height: 1080, scale: 1 }
 };
 const FPS = 30;
 const DURATION = 25;
@@ -43,7 +44,7 @@ async function open(view, size, scale = 2) {
 
 if (mode === 'all' || mode === 'images') {
   for (const [view, size] of Object.entries(IMAGES)) {
-    const page = await open(view, size);
+    const page = await open(view, { width: size.width, height: size.height }, size.scale ?? 2);
     await page.screenshot({ path: join(out, `${view}.png`) });
     await page.close();
     console.log(`${view}.png`);
