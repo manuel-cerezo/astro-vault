@@ -108,7 +108,7 @@ Add `.obsidian/` to your `.gitignore`: it holds per-device settings that change 
 
 `[[...]]` inside inline code and code blocks is left as text.
 
-**How names resolve.** A bare name matches a note's file name first, then its slug, then its `aliases`. When several notes share a name, the one closest to the vault root wins, as in Obsidian. Use `[[Folder/Note]]` to pick another one. The build warns when two files would publish at the same URL.
+**How names resolve.** A bare name matches a note's file name first, then its slug, then its `aliases`. When several notes share a name, the one closest to the vault root wins, as in Obsidian. Use `[[Folder/Note]]` to pick another one. The build log lists every name shared by several notes and where a bare link goes, and warns when two files would publish at the same URL.
 
 **Not supported yet:** note embeds (`![[Other note]]`), block references (`^id`), image sizes (`![[image.png|300]]`), Dataview and Canvas.
 

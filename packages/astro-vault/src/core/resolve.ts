@@ -49,6 +49,25 @@ export function createNoteResolver(notes: NoteRef[]): NoteResolver {
   };
 }
 
+export interface AmbiguousName {
+  /** The file name shared by several notes, as a bare `[[name]]` would write it. */
+  name: string;
+  /** Every note with that name, closest to the vault root first: `[[name]]` links to the first. */
+  paths: string[];
+}
+
+/** File names that several notes share, so a bare `[[name]]` is ambiguous. */
+export function findAmbiguousNames(notes: NoteRef[]): AmbiguousName[] {
+  const groups = new Map<string, NoteRef[]>();
+  for (const note of [...notes].sort(byDepthThenPath)) {
+    const key = noteBasename(note.path).toLowerCase();
+    groups.set(key, [...(groups.get(key) ?? []), note]);
+  }
+  return [...groups.values()]
+    .filter((group) => group.length > 1)
+    .map((group) => ({ name: noteBasename(group[0]!.path), paths: group.map((note) => note.path) }));
+}
+
 /** Groups of vault paths that would publish at the same URL. */
 export function findDuplicateIds(notes: NoteRef[]): string[][] {
   const paths = new Map<string, string[]>();

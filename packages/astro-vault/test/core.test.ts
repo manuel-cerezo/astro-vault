@@ -6,6 +6,7 @@ import {
   buildNoteTree,
   createNoteHref,
   createNoteResolver,
+  findAmbiguousNames,
   findDuplicateIds,
   flattenNoteTree,
   headingSlug,
@@ -105,6 +106,17 @@ test('aliases never shadow a real file name', () => {
     { id: 'other', path: 'Other.md', aliases: ['Astro'] }
   ]);
   assert.equal(resolve('Astro'), 'astro');
+});
+
+test('names shared by several notes are reported, closest to the root first', () => {
+  assert.deepEqual(
+    findAmbiguousNames([
+      { id: 'b/deep/readme', path: 'B/Deep/README.md' },
+      { id: 'a/readme', path: 'A/README.md' },
+      { id: 'astro', path: 'Astro.md' }
+    ]),
+    [{ name: 'README', paths: ['A/README.md', 'B/Deep/README.md'] }]
+  );
 });
 
 test('notes that would share a URL are reported', () => {

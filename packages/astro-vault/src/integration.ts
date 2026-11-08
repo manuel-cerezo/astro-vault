@@ -15,7 +15,7 @@ import { isSatteriProcessor, satteri } from '@astrojs/markdown-satteri';
 import type { AstroIntegration } from 'astro';
 
 import { resolveVaultConfig, type VaultOptions } from './config.ts';
-import { findDuplicateIds } from './core/resolve.ts';
+import { findAmbiguousNames, findDuplicateIds } from './core/resolve.ts';
 import { vaultMarkdown } from './markdown/satteri.ts';
 import { createVaultIndex } from './vault-index.ts';
 
@@ -35,8 +35,15 @@ export default function vault(options: VaultOptions = {}): AstroIntegration {
         const vaultDir = resolve(root, config.dir);
         const index = createVaultIndex(vaultDir, { draftProperty: config.draftProperty });
 
-        for (const group of findDuplicateIds(index.get().notes)) {
+        const { notes } = index.get();
+        for (const group of findDuplicateIds(notes)) {
           logger.warn(`These notes publish at the same URL; only one will be built: ${group.join(', ')}`);
+        }
+        for (const { name, paths } of findAmbiguousNames(notes)) {
+          logger.info(
+            `[[${name}]] matches ${paths.length} notes and links to ${paths[0]}. ` +
+              `Use [[Folder/${name}]] to link to another one: ${paths.slice(1).join(', ')}`
+          );
         }
 
         const processor = astroConfig.markdown.processor;
