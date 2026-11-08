@@ -1,0 +1,17 @@
+---
+import { getVault } from 'astro-vault/runtime';
+import type { CollectionEntry } from 'astro:content';
+
+import NoteLayout from '../../layouts/NoteLayout.astro';
+
+export async function getStaticPaths() {
+  const vault = await getVault<CollectionEntry<'notes'>>();
+  return vault.notes
+    .filter((note) => !vault.isHome(note.id))
+    .map((note) => ({ params: { slug: note.id }, props: { note } }));
+}
+
+const { note } = Astro.props;
+---
+
+<NoteLayout note={note} />

@@ -1,0 +1,25 @@
+{
+  "name": "astro-vault-monorepo",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.34.3",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "build": "pnpm --filter astro-vault build",
+    "check": "pnpm --filter astro-vault check",
+    "test": "pnpm --filter astro-vault test",
+    "test:example": "pnpm build && pnpm --filter example-basic build && pnpm --filter example-basic test",
+    "validate": "pnpm format:check && pnpm check && pnpm test && pnpm test:example",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check",
+    "changeset": "changeset"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^3.0.3",
+    "prettier": "3.9.9",
+    "prettier-plugin-astro": "1.1.1",
+    "typescript": "^6.0.3"
+  }
+}

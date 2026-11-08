@@ -1,0 +1,87 @@
+{
+  "name": "astro-vault",
+  "version": "0.0.0",
+  "description": "Publish an Obsidian vault with any Astro site: wikilinks, image embeds, callouts, backlinks and a folder tree on top of content collections.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Manuel Cerezo (https://manuelcerezo.com)",
+  "homepage": "https://github.com/manuel-cerezo/astro-vault#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/manuel-cerezo/astro-vault.git",
+    "directory": "packages/astro-vault"
+  },
+  "bugs": "https://github.com/manuel-cerezo/astro-vault/issues",
+  "keywords": [
+    "astro-integration",
+    "astro-component",
+    "withastro",
+    "astro",
+    "obsidian",
+    "wikilinks",
+    "backlinks",
+    "callouts",
+    "digital-garden",
+    "notes",
+    "content-collections",
+    "satteri"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/integration.d.ts",
+      "default": "./dist/integration.js"
+    },
+    "./config": {
+      "types": "./dist/config.d.ts",
+      "default": "./dist/config.js"
+    },
+    "./core": {
+      "types": "./dist/core/index.d.ts",
+      "default": "./dist/core/index.js"
+    },
+    "./loader": {
+      "types": "./dist/loader.d.ts",
+      "default": "./dist/loader.js"
+    },
+    "./runtime": {
+      "types": "./dist/runtime.d.ts",
+      "default": "./dist/runtime.js"
+    },
+    "./satteri": {
+      "types": "./dist/markdown/satteri.d.ts",
+      "default": "./dist/markdown/satteri.js"
+    },
+    "./components/*": "./components/*",
+    "./styles.css": "./styles.css",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "components",
+    "styles.css"
+  ],
+  "sideEffects": [
+    "*.css"
+  ],
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "check": "tsc --noEmit",
+    "test": "node --test \"test/*.test.ts\"",
+    "prepublishOnly": "pnpm build"
+  },
+  "peerDependencies": {
+    "astro": "^7.2.0"
+  },
+  "dependencies": {
+    "@astrojs/markdown-satteri": "^0.4.7",
+    "github-slugger": "^2.0.0",
+    "yaml": "^2.9.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.2",
+    "astro": "^7.4.7"
+  }
+}

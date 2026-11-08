@@ -1,0 +1,11 @@
+---
+import { getVault } from 'astro-vault/runtime';
+import type { CollectionEntry } from 'astro:content';
+
+import NoteLayout from '../../layouts/NoteLayout.astro';
+
+const vault = await getVault<CollectionEntry<'notes'>>();
+if (!vault.home) throw new Error('Add a landing note at src/content/notes/index.md');
+---
+
+<NoteLayout note={vault.home} />

@@ -1,0 +1,8 @@
+packages:
+  - packages/*
+  - examples/*
+
+overrides:
+  # @astrojs/language-server 2.17 loads @astrojs/astro2tsx through a wasm
+  # runtime that cannot find @emnapi/core under pnpm, so `astro check` fails.
+  '@astrojs/language-server': 2.16.10

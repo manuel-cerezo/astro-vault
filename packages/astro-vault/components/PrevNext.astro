@@ -1,0 +1,38 @@
+---
+/**
+ * Previous / next links in reading order (the home note, then the tree).
+ * Unstyled; replace the labels with the `previous` and `next` slots.
+ */
+import type { Vault } from 'astro-vault/runtime';
+
+interface Props {
+  vault: Vault<any>;
+  id: string;
+  class?: string;
+  linkClass?: string;
+}
+
+const { vault, id, class: className, linkClass } = Astro.props;
+const { previous, next } = vault.neighbours(id);
+---
+
+{(previous || next) && (
+  <nav data-vault-prev-next class={className} aria-label="Previous and next note">
+    {previous && (
+      <a href={vault.href(previous)} rel="prev" data-direction="previous" class={linkClass}>
+        <span data-label>
+          <slot name="previous">Previous</slot>
+        </span>
+        <span data-title>{vault.titles.get(previous)}</span>
+      </a>
+    )}
+    {next && (
+      <a href={vault.href(next)} rel="next" data-direction="next" class={linkClass}>
+        <span data-label>
+          <slot name="next">Next</slot>
+        </span>
+        <span data-title>{vault.titles.get(next)}</span>
+      </a>
+    )}
+  </nav>
+)}

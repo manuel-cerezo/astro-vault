@@ -1,0 +1,56 @@
+---
+/**
+ * Folder tree for a sidebar. Unstyled: target `[data-vault-tree]`,
+ * `[data-vault-folder]`, `a[aria-current="page"]` and `[data-depth]` in your CSS,
+ * or pass `class` / `linkClass` / `folderClass`.
+ *
+ * Folders are `<details>` elements: the top level and the folder holding the
+ * current note start open.
+ */
+import { folderContains, type NoteTreeNode, type Vault } from 'astro-vault/runtime';
+
+interface Props {
+  vault: Vault<any>;
+  /** Id of the note being rendered, marked with `aria-current="page"`. */
+  currentId?: string;
+  /** Defaults to the whole tree. */
+  nodes?: NoteTreeNode[];
+  depth?: number;
+  class?: string;
+  linkClass?: string;
+  folderClass?: string;
+}
+
+const { vault, currentId, nodes = vault.tree, depth = 0, class: className, linkClass, folderClass } = Astro.props;
+---
+
+<ul data-vault-tree data-depth={depth} class={className}>
+  {nodes.map((node) =>
+    node.kind === 'note' ? (
+      <li>
+        <a href={vault.href(node.id)} aria-current={node.id === currentId ? 'page' : undefined} class={linkClass}>
+          {node.title}
+        </a>
+      </li>
+    ) : (
+      <li>
+        <details
+          data-vault-folder
+          class={folderClass}
+          open={depth === 0 || (currentId !== undefined && folderContains(node, currentId))}
+        >
+          <summary>{node.title}</summary>
+          <Astro.self
+            vault={vault}
+            currentId={currentId}
+            nodes={node.children}
+            depth={depth + 1}
+            class={className}
+            linkClass={linkClass}
+            folderClass={folderClass}
+          />
+        </details>
+      </li>
+    )
+  )}
+</ul>

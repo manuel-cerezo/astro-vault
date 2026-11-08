@@ -1,0 +1,41 @@
+---
+/**
+ * The notes that link to `id`. Unstyled; override the heading with the
+ * `title` slot and the empty state with the `empty` slot.
+ */
+import type { Vault } from 'astro-vault/runtime';
+
+interface Props {
+  vault: Vault<any>;
+  id: string;
+  class?: string;
+  linkClass?: string;
+}
+
+const { vault, id, class: className, linkClass } = Astro.props;
+const links = (vault.backlinks.get(id) ?? []).map((source) => ({
+  href: vault.href(source),
+  title: vault.titles.get(source) ?? source
+}));
+---
+
+<section data-vault-backlinks class={className}>
+  <slot name="title">
+    <h2>Linked from</h2>
+  </slot>
+  {links.length > 0 ? (
+    <ul>
+      {links.map((link) => (
+        <li>
+          <a href={link.href} class={linkClass}>
+            {link.title}
+          </a>
+        </li>
+      ))}
+    </ul>
+  ) : (
+    <slot name="empty">
+      <p>No other note links here yet.</p>
+    </slot>
+  )}
+</section>

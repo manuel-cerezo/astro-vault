@@ -1,0 +1,93 @@
+---
+import 'astro-vault/styles.css';
+import Backlinks from 'astro-vault/components/Backlinks.astro';
+import PrevNext from 'astro-vault/components/PrevNext.astro';
+import VaultTree from 'astro-vault/components/VaultTree.astro';
+import { getVault } from 'astro-vault/runtime';
+import { render, type CollectionEntry } from 'astro:content';
+
+interface Props {
+  note: CollectionEntry<'notes'>;
+}
+
+const { note } = Astro.props;
+const vault = await getVault<CollectionEntry<'notes'>>();
+const { Content, headings } = await render(note);
+const title = vault.titles.get(note.id) ?? note.id;
+const folders = vault.foldersOf(note);
+const toc = headings.filter((heading) => heading.depth === 2 || heading.depth === 3);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    {note.data.description && <meta name="description" content={note.data.description} />}
+  </head>
+  <body>
+    <aside>
+      <a href={vault.href('index')} aria-current={vault.isHome(note.id) ? 'page' : undefined}>
+        Start here
+      </a>
+      <VaultTree vault={vault} currentId={note.id} />
+    </aside>
+    <main>
+      <article>
+        {folders.length > 0 && <p class="breadcrumbs">{folders.join(' / ')}</p>}
+        <h1>{title}</h1>
+        {note.data.tags.length > 0 && <p>{note.data.tags.map((tag) => `#${tag}`).join(' ')}</p>}
+        <Content />
+      </article>
+      {toc.length > 0 && (
+        <nav aria-label="On this page">
+          <ul>
+            {toc.map((heading) => (
+              <li>
+                <a href={`#${heading.slug}`}>{heading.text}</a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      )}
+      {!vault.isHome(note.id) && <Backlinks vault={vault} id={note.id} />}
+      <PrevNext vault={vault} id={note.id} />
+    </main>
+  </body>
+</html>
+
+<style>
+  body {
+    display: grid;
+    grid-template-columns: 14rem minmax(0, 1fr);
+    gap: 2rem;
+    max-width: 64rem;
+    margin: 2rem auto;
+    padding: 0 1rem;
+    font-family: system-ui, sans-serif;
+    line-height: 1.6;
+  }
+  @media (max-width: 48rem) {
+    body {
+      grid-template-columns: 1fr;
+    }
+  }
+  .breadcrumbs {
+    color: #6b7280;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+  }
+  :global([data-vault-tree]) {
+    list-style: none;
+    padding-left: 0.75rem;
+  }
+  :global([aria-current='page']) {
+    font-weight: 600;
+  }
+  :global([data-vault-prev-next]) {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2rem;
+  }
+</style>

@@ -1,0 +1,98 @@
+/*
+ * Optional default styles for what the Markdown plugin outputs.
+ * `import 'astro-vault/styles.css'` in a layout, then tune the variables:
+ *
+ *   :root { --vault-accent: rebeccapurple; }
+ *
+ * Every selector uses :where(), so your own CSS always wins.
+ */
+:root {
+  --vault-accent: #2563eb;
+  --vault-muted: #6b7280;
+  --vault-radius: 0.75rem;
+  --vault-callout-note: var(--vault-accent);
+  --vault-callout-info: #0891b2;
+  --vault-callout-tip: #16a34a;
+  --vault-callout-warning: #d97706;
+  --vault-callout-danger: #dc2626;
+}
+
+:where(a.wikilink) {
+  color: var(--vault-accent);
+  text-decoration-color: color-mix(in oklab, var(--vault-accent) 35%, transparent);
+  text-underline-offset: 2px;
+}
+
+:where(a.wikilink:hover) {
+  text-decoration-color: currentColor;
+}
+
+:where(.wikilink-missing) {
+  color: var(--vault-muted);
+  cursor: help;
+  text-decoration: underline dotted;
+  text-underline-offset: 2px;
+}
+
+:where(blockquote.callout) {
+  --callout: var(--vault-callout-note);
+  margin: 1rem 0;
+  padding: 0.75rem 1rem;
+  border: 1px solid color-mix(in oklab, var(--callout) 25%, transparent);
+  border-left: 4px solid var(--callout);
+  border-radius: var(--vault-radius);
+  background: color-mix(in oklab, var(--callout) 8%, transparent);
+  font-style: normal;
+}
+
+:where(blockquote.callout > :last-child) {
+  margin-bottom: 0;
+}
+
+:where(blockquote.callout > .callout-title) {
+  margin: 0 0 0.25rem;
+  color: var(--callout);
+  font-weight: 600;
+}
+
+:where(blockquote.callout:is([data-callout='info'], [data-callout='todo'])) {
+  --callout: var(--vault-callout-info);
+}
+
+:where(
+  blockquote.callout:is(
+      [data-callout='tip'],
+      [data-callout='hint'],
+      [data-callout='success'],
+      [data-callout='check'],
+      [data-callout='done']
+    )
+) {
+  --callout: var(--vault-callout-tip);
+}
+
+:where(
+  blockquote.callout:is(
+      [data-callout='warning'],
+      [data-callout='caution'],
+      [data-callout='attention'],
+      [data-callout='question'],
+      [data-callout='help'],
+      [data-callout='faq']
+    )
+) {
+  --callout: var(--vault-callout-warning);
+}
+
+:where(
+  blockquote.callout:is(
+      [data-callout='danger'],
+      [data-callout='error'],
+      [data-callout='bug'],
+      [data-callout='failure'],
+      [data-callout='fail'],
+      [data-callout='missing']
+    )
+) {
+  --callout: var(--vault-callout-danger);
+}
