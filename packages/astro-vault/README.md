@@ -21,7 +21,7 @@ Publish an [Obsidian](https://obsidian.md) vault as part of any Astro site. You 
 - **Ready in two files.** Turn on the built-in pages and every note gets a clean, readable page with light and dark mode. No layout to write.
 - **Or your own design.** Keep your pages and use the data, the components and the styles you need.
 - **Built for Astro 7.** It runs on Sätteri, Astro's default Markdown processor, and works with `.md` and `.mdx` notes.
-- **Static output.** Everything is resolved at build time. No client JavaScript is added.
+- **Static output.** Everything is resolved at build time. The built-in pages add a small script for smooth navigation and link previews, which you can turn off.
 
 > Status: early `0.x`. The API may change between minor versions until 1.0.
 
@@ -66,6 +66,8 @@ export default defineConfig({
 ```
 
 That's it. Every note in `src/content/notes` is published at `/notes`, with the folder tree, breadcrumbs, table of contents, backlinks, previous / next links and dark mode. `index.md` becomes the landing page; without one, `/notes` lists every note.
+
+Moving between notes feels like Obsidian: links are prefetched on hover, pages change without a full reload while the sidebar keeps its place, and hovering a wikilink previews the note. This uses Astro's `ClientRouter` and a small script; set `navigation: false` and `previews: false` to ship no JavaScript at all.
 
 Set `lang: 'es'` for Spanish interface text, or override any label with `labels`. To use your own design instead, skip this step and follow [Your own pages](#your-own-pages).
 
@@ -213,6 +215,8 @@ const schema = vaultSchema.extend({ cover: z.string().optional() });
 | `lang`                   | `en`                | Interface language of the pages and components. `en` and `es` are built in.                               |
 | `labels`                 | —                   | Override any interface text, e.g. `{ backlinks: 'Mentioned in' }`.                                        |
 | `customCss`              | `[]`                | Stylesheets added to the built-in pages, e.g. `['./src/styles/notes.css']`.                               |
+| `navigation`             | `true`              | Built-in layout: move between notes without full page loads, with prefetching and a persistent sidebar.   |
+| `previews`               | `true`              | Built-in layout: preview the linked note when hovering a wikilink.                                        |
 
 Links honour Astro's `base` and `trailingSlash` options.
 

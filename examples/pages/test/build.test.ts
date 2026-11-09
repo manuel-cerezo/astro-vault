@@ -46,3 +46,11 @@ test('the Markdown plugin still runs on the built-in pages', () => {
   assert.match(html, /<a href="\/notes\/guides\/callouts" class="wikilink">Callouts<\/a>/);
   assert.match(page('notes/index.html'), /class="wikilink wikilink-missing" title="Someday"/);
 });
+
+test('notes navigate without full page loads, with the sidebar kept and wikilink previews on', () => {
+  const html = page('notes/guides/wikilinks/index.html');
+  assert.match(html, /<meta name="astro-view-transitions-enabled" content="true">/);
+  assert.match(html, /<aside[^>]*data-astro-transition-persist="vault-sidebar"/);
+  assert.match(html, /<body class="vault" data-vault-previews>/);
+  assert.match(html, /vault-preview/);
+});

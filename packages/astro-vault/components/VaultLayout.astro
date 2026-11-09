@@ -13,10 +13,12 @@ import 'astro-vault/theme.css';
 import 'virtual:astro-vault/user-css';
 
 import type { Vault, VaultEntry } from 'astro-vault/runtime';
+import { ClientRouter } from 'astro:transitions';
 
 import Backlinks from './Backlinks.astro';
 import PrevNext from './PrevNext.astro';
 import Toc from './Toc.astro';
+import VaultClient from './VaultClient.astro';
 import VaultTree from './VaultTree.astro';
 
 interface Props {
@@ -53,11 +55,13 @@ const homeHref = vault.href(vault.home?.id ?? 'index');
     <title>{pageTitle}</title>
     {data.description && <meta name="description" content={data.description} />}
     <meta name="color-scheme" content="light dark" />
+    {vault.navigation && <ClientRouter />}
     <slot name="head" />
   </head>
-  <body class="vault">
+  <body class="vault" data-vault-previews={vault.previews ? '' : undefined}>
     <div class="vault-shell">
-      <aside class="vault-sidebar">
+      <!-- Kept across client-side navigations, so the tree keeps its scroll and open folders. -->
+      <aside class="vault-sidebar" transition:persist="vault-sidebar">
         <a class="vault-brand" href={homeHref}>
           {vault.title}
         </a>
@@ -128,5 +132,6 @@ const homeHref = vault.href(vault.home?.id ?? 'index');
         <Toc vault={vault} headings={headings} />
       </aside>
     </div>
+    {(vault.navigation || vault.previews) && <VaultClient />}
   </body>
 </html>

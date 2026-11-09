@@ -65,7 +65,8 @@
     "theme.css"
   ],
   "sideEffects": [
-    "*.css"
+    "*.css",
+    "./components/vault-client.js"
   ],
   "engines": {
     "node": ">=22.12.0"

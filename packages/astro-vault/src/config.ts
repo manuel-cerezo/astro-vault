@@ -54,6 +54,14 @@ export interface VaultOptions {
   labels?: Partial<VaultLabels>;
   /** Stylesheets added to the built-in pages, relative to the project root, e.g. `['./src/styles/notes.css']`. */
   customCss?: string[];
+  /**
+   * Move between notes without full page loads in the built-in layout, with
+   * Astro's ClientRouter: notes are prefetched on hover and the sidebar keeps
+   * its place. `false` ships no JavaScript for it. Default: `true`.
+   */
+  navigation?: boolean;
+  /** Show a preview of the linked note when hovering a wikilink in the built-in layout. Default: `true`. */
+  previews?: boolean;
 }
 
 export interface ResolvedVaultConfig {
@@ -71,6 +79,8 @@ export interface ResolvedVaultConfig {
   lang: string;
   labels: VaultLabels;
   customCss: string[];
+  navigation: boolean;
+  previews: boolean;
 }
 
 /** Typed identity helper for a shared `vault.config.ts`. */
@@ -102,6 +112,8 @@ export function resolveVaultConfig(options: VaultOptions = {}): ResolvedVaultCon
     title: options.title ?? 'Notes',
     lang: options.lang ?? 'en',
     labels: resolveLabels(options.lang ?? 'en', options.labels),
-    customCss: options.customCss ?? []
+    customCss: options.customCss ?? [],
+    navigation: options.navigation ?? true,
+    previews: options.previews ?? true
   };
 }

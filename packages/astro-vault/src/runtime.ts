@@ -43,6 +43,10 @@ export interface Vault<Entry extends VaultEntry = VaultEntry> {
   lang: string;
   /** Interface text in that language, with your overrides. */
   labels: VaultLabels;
+  /** Whether the built-in layout navigates without full page loads (`navigation` option). */
+  navigation: boolean;
+  /** Whether the built-in layout previews wikilinks on hover (`previews` option). */
+  previews: boolean;
   /** Published notes (drafts excluded), in collection order. */
   notes: Entry[];
   /** The landing note, when the vault has one. */
@@ -102,6 +106,8 @@ async function loadVault(): Promise<Vault> {
     title: config.title,
     lang: config.lang,
     labels: config.labels,
+    navigation: config.navigation,
+    previews: config.previews,
     notes,
     home,
     tree,

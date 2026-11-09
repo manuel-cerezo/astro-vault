@@ -18,15 +18,16 @@
 
 Publish an [Obsidian](https://obsidian.md) vault as part of any Astro site. You keep writing in Obsidian; `astro build` turns the vault into pages with:
 
-| Feature              | What you get                                                                                |
-| -------------------- | ------------------------------------------------------------------------------------------- |
-| **Wikilinks**        | `[[Note]]`, `[[Folder/Note]]`, `[[Note#Heading]]`, `[[Note\|label]]` and aliases            |
-| **Image embeds**     | `![[image.png]]` from anywhere in the vault, optimized by Astro                             |
-| **Callouts**         | `> [!tip] Title`, including foldable ones                                                   |
-| **Backlinks**        | Every note knows which notes link to it                                                     |
-| **Navigation**       | Folder tree, breadcrumbs and previous / next links                                          |
-| **Your design**      | Content collections, `.md` and `.mdx`, no client JavaScript, unstyled components            |
-| **Ready-made pages** | `pages: true` publishes the vault with a clean theme, dark mode and English or Spanish text |
+| Feature               | What you get                                                                                |
+| --------------------- | ------------------------------------------------------------------------------------------- |
+| **Wikilinks**         | `[[Note]]`, `[[Folder/Note]]`, `[[Note#Heading]]`, `[[Note\|label]]` and aliases            |
+| **Image embeds**      | `![[image.png]]` from anywhere in the vault, optimized by Astro                             |
+| **Callouts**          | `> [!tip] Title`, including foldable ones                                                   |
+| **Backlinks**         | Every note knows which notes link to it                                                     |
+| **Navigation**        | Folder tree, breadcrumbs and previous / next links                                          |
+| **Your design**       | Content collections, `.md` and `.mdx`, no client JavaScript, unstyled components            |
+| **Ready-made pages**  | `pages: true` publishes the vault with a clean theme, dark mode and English or Spanish text |
+| **Smooth navigation** | Prefetching, page changes without reloads and hover previews of linked notes                |
 
 ![A note rendered by the built-in pages](./assets/theme-light.png)
 

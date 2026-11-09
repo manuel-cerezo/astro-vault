@@ -164,6 +164,8 @@ test('labels come in English and Spanish and take overrides', () => {
   assert.equal(resolveVaultConfig({ lang: 'fr' }).labels.next, 'Next');
   assert.equal(resolveVaultConfig({ lang: 'es', labels: { next: 'Sigue' } }).labels.next, 'Sigue');
   assert.equal(resolveVaultConfig().pages, false);
+  assert.equal(resolveVaultConfig().navigation, true);
+  assert.equal(resolveVaultConfig({ previews: false }).previews, false);
 });
 
 test('the config fills defaults and rejects a relative base path', () => {
