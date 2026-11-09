@@ -1,9 +1,10 @@
 """The launch video's sound, synthesised from scratch and timed to the cut.
 
-No samples and no library track, so there is nothing to license. There is no
-background music: keys while text is typed, cursor clicks, a soft whoosh on
-each scene change, small pops for the note picker and the link preview, and
-one electric-piano chord that rings out under the call to action. Writes
+No samples and no library track, so there is nothing to license. A quiet bed
+of slow chords that never repeat sits under keys while text is typed, cursor
+clicks, a faint swish on each scene change and small pops for the note picker
+and the link preview, and it resolves into one electric-piano chord that rings
+out under the call to action. Writes
 ../public/music.mp3 (needs numpy and ffmpeg). Run: python3 music/compose.py
 """
 import wave, numpy as np, os, subprocess, tempfile
@@ -55,13 +56,13 @@ def epiano(note, dur, vel=1.0):
     e[off:] *= np.exp(-np.arange(n - off) / SR / 0.25)
     return (body + tine) * e * vel
 
-def pad(notes, dur):
+def pad(notes, dur, cut=1100):
     n = int((dur + 1.5) * SR); t = np.arange(n) / SR; out = np.zeros(n)
     for m in notes:
         for det in (-0.09, 0.0, 0.08):
             ph = rng.uniform(0, 1)
             out += 2 * ((hz(m) * (1 + det / 100 * 12) * t + ph) % 1) - 1
-    out = highpass(lowpass(out / (3 * len(notes)), 1100), 160)
+    out = highpass(lowpass(out / (3 * len(notes)), cut), 160)
     a = np.minimum(1, t / 0.8)
     rel = np.clip((t - dur) / 1.5, 0, 1)
     return out * a * (1 - rel)
@@ -86,7 +87,7 @@ def whoosh(dur=0.7):
     n = int(dur * SR); t = np.arange(n) / SR
     x = rng.standard_normal(n)
     e = np.sin(np.pi * np.clip(t / dur, 0, 1)) ** 2
-    return (0.6 * lowpass(x, 1400) + 0.4 * highpass(lowpass(x, 4000), 1500) * e) * e
+    return highpass(lowpass(x, 3000), 900) * e
 
 def pop(f0=880):
     n = int(0.18 * SR); t = np.arange(n) / SR
@@ -100,13 +101,29 @@ def at(scene_start, speed, frame):
 
 EDITOR, SETUP, SITE, CTA = 90, 280, 400, 947
 
-# Title: a soft whoosh as each line rises.
-put(whoosh(0.9), 0.0, gain=0.10)
-put(whoosh(0.9), at(0, 1, 26), gain=0.08)
+
+# A quiet bed under everything: slow chords that never repeat, one soft piano
+# note on each, and it resolves into the closing chord.
+BED = [  # (bass, pad voicing, piano note)
+    (41, [57, 60, 64, 67], 81),  # Fmaj9
+    (45, [55, 60, 64, 67], 79),  # Am7
+    (38, [57, 60, 64, 65], 77),  # Dm9
+    (34, [57, 62, 65, 69], 76),  # Bbmaj7
+    (45, [53, 57, 60, 64], 74),  # F/A
+    (43, [53, 58, 62, 69], 72),  # Gm9
+    (46, [57, 62, 65, 69], 74),  # Bbmaj7
+    (36, [55, 58, 62, 65], 72),  # C7sus
+]
+step = (CTA / FPS - 0.15) / len(BED)
+for i, (root, voicing, top) in enumerate(BED):
+    t0 = i * step
+    put(pad(voicing, step + 0.4, cut=750), t0, gain=0.11)
+    put(bass(root - 12 if root > 40 else root, step), t0, gain=0.07)
+    put(epiano(top, step * 0.6, 0.35), t0 + 0.4, pan=0.15, gain=0.14)
 
 # Scene changes.
 for start in (EDITOR, SETUP, SITE):
-    put(whoosh(), start / FPS - 0.35, pan=0.2, gain=0.14)
+    put(whoosh(0.5), start / FPS - 0.25, pan=0.2, gain=0.035)
 
 # Editor: every typed key, the note picker, Enter to pick.
 keys = []
@@ -130,7 +147,7 @@ put(pop(980), at(SETUP, 1.15, 54), gain=0.07)
 put(pop(1170), at(SITE, 1.35, 90), gain=0.08)
 for fr in (135, 210, 317):
     put(click(), at(SITE, 1.35, fr), pan=0.1, gain=0.16)
-put(whoosh(0.9), at(SITE, 1.35, 360), pan=-0.2, gain=0.1)
+put(whoosh(0.6), at(SITE, 1.35, 360), pan=-0.2, gain=0.03)
 
 # The close: one chord that rings out under the call to action.
 t0 = CTA / FPS - 0.15
@@ -153,7 +170,7 @@ L2, R2 = L + g * wetL, R + g * wetR
 
 # Fade in and out, normalise to -1 dBFS, gentle soft clip.
 t = np.arange(N) / SR
-fade = np.clip((TOTAL - t) / 1.6, 0, 1)
+fade = np.minimum(1, t / 0.6) * np.clip((TOTAL - t) / 1.6, 0, 1)
 mix = np.stack([L2, R2]) * fade
 mix = np.tanh(mix / np.abs(mix).max() * 1.1) / np.tanh(1.1) * 10 ** (-1 / 20)
 

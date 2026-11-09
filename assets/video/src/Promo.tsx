@@ -7,7 +7,7 @@ import { moves, useCamera } from './kit/camera';
 import { C, F } from './theme';
 
 /**
- * ~35.6 s at 30 fps, with sound effects and a closing chord. On social it often plays muted, so the explanation is
+ * ~35.6 s at 30 fps, with a quiet music bed, sound effects and a closing chord. On social it often plays muted, so the explanation is
  * written beside the product instead of subtitled under it: a column on the
  * left says what is happening, and the product plays in a window on the right.
  * Each part runs slower than it was first timed (see SPEED) so every step can be
