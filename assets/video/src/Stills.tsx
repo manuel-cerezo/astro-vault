@@ -135,8 +135,9 @@ export const Social: React.FC = () => (
 
 export const Poster: React.FC = () => (
   <AbsoluteFill style={{ background: C.paper }}>
-    <Img src={staticFile('site-wikilinks-light.png')} style={{ width: 1920, height: 1080 }} />
-    <AbsoluteFill style={{ background: 'rgba(251,250,247,0.55)', alignItems: 'center', justifyContent: 'center' }}>
+    {/* A frame of the video: a wikilink typed in the editor. */}
+    <Img src={staticFile('poster-frame.png')} style={{ width: 1920, height: 1080 }} />
+    <AbsoluteFill style={{ alignItems: 'center', justifyContent: 'flex-end', paddingBottom: 96 }}>
       <div
         style={{
           display: 'flex',
@@ -144,11 +145,12 @@ export const Poster: React.FC = () => (
           gap: 28,
           padding: '26px 44px 26px 26px',
           borderRadius: 999,
-          background: C.ink,
-          color: C.paper,
+          background: C.paper,
+          color: C.ink,
           fontFamily: F.sans,
           fontSize: 40,
-          fontWeight: 600
+          fontWeight: 600,
+          boxShadow: '0 20px 60px rgba(0,0,0,0.35)'
         }}
       >
         <div
@@ -156,13 +158,13 @@ export const Poster: React.FC = () => (
             width: 88,
             height: 88,
             borderRadius: 44,
-            background: C.paper,
+            background: C.ink,
             display: 'grid',
             placeItems: 'center'
           }}
         >
           <svg width="34" height="38" viewBox="0 0 34 38">
-            <path d="M5 3l26 16L5 35z" fill={C.ink} />
+            <path d="M5 3l26 16L5 35z" fill={C.paper} />
           </svg>
         </div>
         Watch the overview

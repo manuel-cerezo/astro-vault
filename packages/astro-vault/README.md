@@ -26,7 +26,7 @@ Publish an [Obsidian](https://obsidian.md) vault as part of any Astro site. You 
 > Status: early `0.x`. The API may change between minor versions until 1.0.
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/manuel-cerezo/astro-vault/develop/assets/theme-light.png" alt="A note rendered by the built-in pages in light mode, with callouts, the folder tree and the table of contents" width="100%">
+  <img src="https://raw.githubusercontent.com/manuel-cerezo/astro-vault/develop/assets/theme-light.png" alt="A note rendered by the built-in pages in light mode, with a link preview open" width="100%">
 </p>
 
 <a href="https://github.com/manuel-cerezo/astro-vault/raw/develop/assets/astro-vault-promo.mp4"><img src="https://raw.githubusercontent.com/manuel-cerezo/astro-vault/develop/assets/poster.png" alt="Watch the overview video" width="100%"></a>
