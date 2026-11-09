@@ -2,6 +2,7 @@ import React from 'react';
 import { AbsoluteFill, Audio, Easing, Img, interpolate, Sequence, staticFile, useCurrentFrame } from 'remotion';
 
 import { Lockup } from './Brand';
+import TYPING from './typing.json';
 import { Editor } from './Editor';
 import { moves, useCamera } from './kit/camera';
 import { C, F } from './theme';
@@ -50,27 +51,16 @@ const Title: React.FC = () => {
 
 /* 2. Editor */
 
-const LINE = [
-  { at: 12, text: 'Read more about ' },
-  { at: 36, text: '[[' },
-  { at: 42, text: 'Cal' }
-];
+// When each character appears, typed like a person (written by music/compose.py,
+// which times the key sounds to the same list).
+const typedCount = (times: number[], f: number) => times.filter((t) => t <= f).length;
+
+const BEFORE_PICK = 'Read more about [[Cal';
 const COMPLETED = 'Read more about [[Callouts]]';
 const TAIL = ' next.';
 
-const typedAt = (f: number) => {
-  if (f >= 64) {
-    const extra = Math.max(0, Math.min(TAIL.length, Math.floor((f - 68) / 1.6)));
-    return COMPLETED + TAIL.slice(0, extra);
-  }
-  let out = '';
-  for (const chunk of LINE) {
-    if (f < chunk.at) break;
-    const count = Math.min(chunk.text.length, Math.floor((f - chunk.at) / 1.5) + 1);
-    out += chunk.text.slice(0, count);
-  }
-  return out;
-};
+const typedAt = (f: number) =>
+  f >= 56 ? COMPLETED + TAIL.slice(0, typedCount(TYPING.tail, f)) : BEFORE_PICK.slice(0, typedCount(TYPING.editor, f));
 
 const EditorScene: React.FC<{ speed: number }> = ({ speed }) => {
   const f = useCurrentFrame() / speed;
@@ -83,7 +73,7 @@ const EditorScene: React.FC<{ speed: number }> = ({ speed }) => {
     f,
     DESIGN
   );
-  const typing = (f >= 12 && f < 50) || (f >= 66 && f < 80);
+  const typing = (f >= 4 && f < 50) || (f >= 66 && f < 82);
   const caret = typing || Math.floor(f / 15) % 2 === 0;
   const suggest = f < 37 ? 0 : f < 64 ? interpolate(f, [37, 43], [0, 1], clamp) : 0;
   return (
@@ -116,9 +106,9 @@ const Card: React.FC<{ title: string; children: React.ReactNode; style?: React.C
 
 const Setup: React.FC<{ speed: number }> = ({ speed }) => {
   const f = useCurrentFrame() / speed;
-  const typed = COMMAND.slice(0, Math.max(0, Math.floor((f - 10) / 1.1)));
-  const done = f >= 42;
-  const option = interpolate(f, [54, 64], [0, 1], clamp);
+  const typed = COMMAND.slice(0, typedCount(TYPING.command, f));
+  const done = f >= 52;
+  const option = interpolate(f, [62, 72], [0, 1], clamp);
   return (
     <AbsoluteFill style={{ justifyContent: 'center', fontFamily: F.sans }}>
       <Card title="Terminal" style={rise(f, 0)}>
@@ -127,7 +117,7 @@ const Setup: React.FC<{ speed: number }> = ({ speed }) => {
           ✓ Added astro-vault to astro.config.mjs
         </div>
       </Card>
-      <Card title="astro.config.mjs" style={{ ...rise(f, 48), marginTop: 28 }}>
+      <Card title="astro.config.mjs" style={{ ...rise(f, 56), marginTop: 28 }}>
         integrations: [vault(
         <span
           style={{

@@ -5,9 +5,9 @@ of slow chords that never repeat sits under keys while text is typed, cursor
 clicks, a faint swish on each scene change and small pops for the note picker
 and the link preview, and it resolves into one electric-piano chord that rings
 out under the call to action. Writes
-../public/music.mp3 (needs numpy and ffmpeg). Run: python3 music/compose.py
+../public/music.mp3 and the typing rhythm the video follows, ../src/typing.json (needs numpy and ffmpeg). Run: python3 music/compose.py
 """
-import wave, numpy as np, os, subprocess, tempfile
+import json, wave, numpy as np, os, subprocess, tempfile
 
 SR = 48000
 TOTAL = 35.6 + 0.4
@@ -77,11 +77,51 @@ def click():
     s = np.sin(2 * np.pi * 1800 * t) * np.exp(-t / 0.008) + 0.4 * highpass(rng.standard_normal(n), 3000) * np.exp(-t / 0.004)
     return s
 
-def keypress(vel):
-    n = int(0.05 * SR); t = np.arange(n) / SR
-    noise = highpass(lowpass(rng.standard_normal(n), 5000), 1200) * np.exp(-t / 0.006)
-    thump = np.sin(2 * np.pi * rng.uniform(180, 240) * t) * np.exp(-t / 0.012)
-    return (0.6 * noise + 0.5 * thump) * vel
+def keypress(vel, kind='key'):
+    """One keystroke: the cap's plastic click, the bottom-out thock, then the
+    quieter release. Every key gets its own resonances, so no two sound alike."""
+    n = int(0.16 * SR); t = np.arange(n) / SR
+    out = np.zeros(n)
+    low = (90, 160) if kind == 'space' else (170, 320)
+    # Press: a very short bright tick and a few damped plastic modes.
+    out += highpass(rng.standard_normal(n), 2500) * np.exp(-t / 0.0012) * 0.5
+    for _ in range(3):
+        f = rng.uniform(1400, 4200)
+        out += np.sin(2 * np.pi * f * t + rng.uniform(0, 6)) * np.exp(-t / rng.uniform(0.004, 0.009)) * 0.18
+    # Bottom-out: a soft, low thock a few milliseconds later.
+    d = int(rng.uniform(0.004, 0.009) * SR)
+    td = t[: n - d]
+    thock = np.sin(2 * np.pi * rng.uniform(*low) * td) * np.exp(-td / (0.03 if kind == 'space' else 0.016))
+    thock += lowpass(rng.standard_normal(n - d), 900) * np.exp(-td / 0.01) * 0.6
+    out[d:] += thock * (0.8 if kind == 'space' else 0.55)
+    # Release, 45–90 ms later.
+    r = int(rng.uniform(0.045, 0.09) * SR)
+    tr = t[: n - r]
+    out[r:] += highpass(rng.standard_normal(n - r), 2000) * np.exp(-tr / 0.0015) * 0.18
+    out[r:] += np.sin(2 * np.pi * rng.uniform(1800, 3500) * tr) * np.exp(-tr / 0.005) * 0.06
+    return lowpass(out, 9000) * vel
+
+def schedule(text, start, end):
+    """Frames at which each character of `text` appears, typed like a person:
+    quick runs inside words, a beat after spaces, a little hesitation on symbols."""
+    w = []
+    for i, ch in enumerate(text):
+        x = rng.uniform(0.7, 1.4)
+        if i and text[i - 1] == ' ': x *= 1.7
+        if ch in '[]{}.-:': x *= 1.4
+        w.append(x)
+    w = np.cumsum(w); w = (w - w[0]) / (w[-1] - w[0]) if len(w) > 1 else w * 0
+    return [round(float(start + v * (end - start)), 2) for v in w]
+
+# Typing, in scene frames before the slow-down. The video reads these too.
+TYPING = {
+    'editor': schedule('Read more about ', 4, 31) + schedule('[[', 35, 37.5) + schedule('Cal', 42, 47.5),
+    'tail': schedule(' next.', 68, 80),
+    'command': schedule('npx astro add astro-vault', 8, 46),
+}
+with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'src', 'typing.json'), 'w') as fh:
+    json.dump(TYPING, fh)
+    fh.write('\n')
 
 def whoosh(dur=0.7):
     n = int(dur * SR); t = np.arange(n) / SR
@@ -125,23 +165,24 @@ for i, (root, voicing, top) in enumerate(BED):
 for start in (EDITOR, SETUP, SITE):
     put(whoosh(0.5), start / FPS - 0.25, pan=0.2, gain=0.035)
 
+def type_out(times, text, scene, speed):
+    for k, ch in zip(times, text):
+        kind = 'space' if ch == ' ' else 'key'
+        jitter = rng.uniform(-0.006, 0.006)
+        put(keypress(rng.uniform(0.55, 1.0), kind), at(scene, speed, k) + jitter, pan=rng.uniform(-0.25, 0.25), gain=0.2)
+
 # Editor: every typed key, the note picker, Enter to pick.
-keys = []
-for chunk_at, text in ((12, 'Read more about '), (36, '[['), (42, 'Cal')):
-    keys += [chunk_at + 1.5 * i for i in range(len(text))]
-keys += [68 + 1.6 * j for j in range(1, len(' next.') + 1)]
-for k in keys:
-    put(keypress(rng.uniform(0.6, 1.0)), at(EDITOR, 1.25, k), pan=rng.uniform(-0.2, 0.2), gain=0.22)
+type_out(TYPING['editor'], 'Read more about [[Cal', EDITOR, 1.25)
 put(pop(1040), at(EDITOR, 1.25, 37), gain=0.08)
-put(keypress(1.2), at(EDITOR, 1.25, 56), gain=0.3)
+put(keypress(1.0), at(EDITOR, 1.25, 56), gain=0.24)
+type_out(TYPING['tail'], ' next.', EDITOR, 1.25)
 
 # Setup: the command, Enter, a small two-note chime when it is added, then the option.
-for i in range(1, len('npx astro add astro-vault') + 1):
-    put(keypress(rng.uniform(0.6, 1.0)), at(SETUP, 1.15, 10 + 1.1 * i), pan=rng.uniform(-0.2, 0.2), gain=0.22)
-put(keypress(1.2), at(SETUP, 1.15, 40), gain=0.3)
-put(epiano(76, 0.25, 0.5), at(SETUP, 1.15, 42), gain=0.16)
-put(epiano(81, 0.5, 0.5), at(SETUP, 1.15, 42) + 0.09, gain=0.16)
-put(pop(980), at(SETUP, 1.15, 54), gain=0.07)
+type_out(TYPING['command'], 'npx astro add astro-vault', SETUP, 1.15)
+put(keypress(1.0, 'space'), at(SETUP, 1.15, 50), gain=0.24)
+put(epiano(76, 0.25, 0.5), at(SETUP, 1.15, 52), gain=0.16)
+put(epiano(81, 0.5, 0.5), at(SETUP, 1.15, 52) + 0.09, gain=0.16)
+put(pop(980), at(SETUP, 1.15, 62), gain=0.07)
 
 # Site: the preview card pops, three clicks, dark mode.
 put(pop(1170), at(SITE, 1.35, 90), gain=0.08)
