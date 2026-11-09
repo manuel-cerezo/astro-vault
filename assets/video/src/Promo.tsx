@@ -8,17 +8,17 @@ import { Subtitles, type SubtitleCue } from './kit/Subtitle';
 import { C, F } from './theme';
 
 /**
- * 26 s at 30 fps, silent with subtitles (launch-video-kit: on social it plays
+ * 27.5 s at 30 fps, silent with subtitles (launch-video-kit: on social it plays
  * muted, so text carries it and subtitles only say what is not on screen).
  *
  *   0–75     title
  *   75–225   typing a wikilink in the editor
  *   225–315  setup: one command, one option
- *   315–675  the built site, driven by a cursor: follow a wikilink, open a
+ *   315–720  the built site, driven by a cursor: preview a wikilink, follow it, open a
  *            foldable callout, come back through a backlink, dark mode
- *   675–780  call to action
+ *   720–825  call to action
  */
-export const PROMO_FRAMES = 780;
+export const PROMO_FRAMES = 825;
 const DESIGN = { width: 1920, height: 1080 };
 
 const clamp = { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' } as const;
@@ -166,13 +166,15 @@ type Waypoint = { at: number; x: number; y: number };
 const PATH: Waypoint[] = [
   { at: 30, x: 1500, y: 760 },
   { at: 80, x: LINK.x, y: LINK.y },
-  { at: 112, x: LINK.x + 40, y: LINK.y + 160 },
-  { at: 155, x: FOLD.x, y: FOLD.y },
-  { at: 215, x: FOLD.x + 30, y: FOLD.y + 60 },
-  { at: 262, x: BACKLINK.x, y: BACKLINK.y },
-  { at: 300, x: BACKLINK.x + 20, y: BACKLINK.y - 40 }
+  // Rests on the link while its preview opens.
+  { at: 135, x: LINK.x, y: LINK.y },
+  { at: 157, x: LINK.x + 40, y: LINK.y + 160 },
+  { at: 200, x: FOLD.x, y: FOLD.y },
+  { at: 260, x: FOLD.x + 30, y: FOLD.y + 60 },
+  { at: 307, x: BACKLINK.x, y: BACKLINK.y },
+  { at: 345, x: BACKLINK.x + 20, y: BACKLINK.y - 40 }
 ];
-const CLICKS = [90, 165, 272];
+const CLICKS = [135, 210, 317];
 
 const cursorAt = (f: number) => {
   const i = PATH.findIndex((p) => p.at > f);
@@ -189,7 +191,7 @@ const cursorAt = (f: number) => {
 
 const Cursor: React.FC<{ f: number; camScale: number }> = ({ f, camScale }) => {
   const { x, y } = cursorAt(f);
-  const visible = span(f, 26, 34, 296, 306);
+  const visible = span(f, 26, 34, 341, 351);
   const press = Math.max(...CLICKS.map((c) => interpolate(f, [c - 3, c, c + 5], [0, 1, 0], clamp)));
   const ripple = CLICKS.map((c) => interpolate(f, [c, c + 16], [0, 1], clamp) * (f >= c && f < c + 16 ? 1 : 0));
   return (
@@ -243,29 +245,31 @@ const SiteScene: React.FC = () => {
   const cam = useCamera(
     moves([
       { at: 0, fx: 940, fy: 300, s: 1.6 },
-      { at: 92, fx: 940, fy: 300, s: 1.6 },
-      { at: 112, fx: 968, fy: 420, s: 1.45 },
-      { at: 150, fx: 968, fy: 420, s: 1.45 },
-      { at: 182, fx: 968, fy: 650, s: 1.45 },
-      { at: 228, fx: 968, fy: 650, s: 1.45 },
-      { at: 255, fx: 900, fy: 740, s: 1.45 },
-      { at: 278, fx: 900, fy: 740, s: 1.45 },
+      { at: 137, fx: 940, fy: 300, s: 1.6 },
+      { at: 157, fx: 968, fy: 420, s: 1.45 },
+      { at: 195, fx: 968, fy: 420, s: 1.45 },
+      { at: 227, fx: 968, fy: 650, s: 1.45 },
+      { at: 273, fx: 968, fy: 650, s: 1.45 },
+      { at: 300, fx: 900, fy: 740, s: 1.45 },
+      { at: 323, fx: 900, fy: 740, s: 1.45 },
       // The backlink opens a new page at its top: a quick move that reads as a cut.
-      { at: 281, fx: 940, fy: 300, s: 1.6 },
-      { at: 312, fx: 940, fy: 300, s: 1.6 },
-      { at: 350, fx: 960, fy: 540, s: 1 }
+      { at: 326, fx: 940, fy: 300, s: 1.6 },
+      { at: 357, fx: 940, fy: 300, s: 1.6 },
+      { at: 395, fx: 960, fy: 540, s: 1 }
     ]),
     f,
     DESIGN
   );
   const layers: [string, number][] = [
-    // Clicks cut to the next page almost at once, as a real navigation would.
-    ['site-wikilinks-light.png', f < 96 ? 1 : 0],
-    ['site-wikilinks-hover.png', span(f, 74, 77, 94, 96)],
-    ['site-callouts-light.png', span(f, 94, 96, 168, 171)],
-    ['site-callouts-open.png', span(f, 168, 171, 276, 278)],
-    ['site-wikilinks-light.png', span(f, 276, 278)],
-    ['site-wikilinks-dark.png', span(f, 318, 332)]
+    // Following a link fades only between the two notes, like the built-in
+    // view transitions; the sidebar is the same in both shots, so it stays put.
+    ['site-wikilinks-light.png', f < 147 ? 1 : 0],
+    ['site-wikilinks-hover.png', span(f, 74, 77, 90, 92)],
+    ['site-wikilinks-preview.png', span(f, 90, 96, 139, 141)],
+    ['site-callouts-light.png', span(f, 139, 147, 213, 216)],
+    ['site-callouts-open.png', span(f, 213, 216, 322, 326)],
+    ['site-wikilinks-light.png', span(f, 322, 326)],
+    ['site-wikilinks-dark.png', span(f, 363, 377)]
   ];
   return (
     <AbsoluteFill style={{ background: C.paper }}>
@@ -317,9 +321,11 @@ const CallToAction: React.FC = () => {
 /** Absolute frames. Only what is not already written on screen. */
 const CUES: readonly SubtitleCue[] = [
   { at: 145, dur: 76, text: 'Link notes with [[wikilinks]], exactly as in Obsidian.' },
-  { at: 322, dur: 80, text: 'Every note becomes a page. Links just work.' },
-  { at: 490, dur: 68, text: 'Callouts fold open, no JavaScript needed.' },
-  { at: 632, dur: 42, text: 'Light and dark, built in.' }
+  { at: 322, dur: 70, text: 'Every note becomes a page.' },
+  { at: 408, dur: 48, text: 'Hover a link to preview the note.' },
+  { at: 462, dur: 52, text: 'Click, and it opens without reloading.' },
+  { at: 535, dur: 68, text: 'Callouts fold open, no JavaScript needed.' },
+  { at: 677, dur: 42, text: 'Light and dark, built in.' }
 ];
 
 export const Promo: React.FC = () => {
@@ -328,8 +334,8 @@ export const Promo: React.FC = () => {
     [0, 75, <Title />],
     [75, 225, <EditorScene />],
     [225, 315, <Setup />],
-    [315, 675, <SiteScene />],
-    [675, PROMO_FRAMES + 10, <CallToAction />]
+    [315, 720, <SiteScene />],
+    [720, PROMO_FRAMES + 10, <CallToAction />]
   ];
   return (
     <AbsoluteFill style={{ background: C.paper }}>

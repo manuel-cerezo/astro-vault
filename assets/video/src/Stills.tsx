@@ -165,7 +165,7 @@ export const Poster: React.FC = () => (
             <path d="M5 3l26 16L5 35z" fill={C.ink} />
           </svg>
         </div>
-        Watch the 26-second overview
+        Watch the overview
       </div>
     </AbsoluteFill>
   </AbsoluteFill>
