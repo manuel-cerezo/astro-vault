@@ -18,16 +18,16 @@
 
 Publish an [Obsidian](https://obsidian.md) vault as part of any Astro site. You keep writing in Obsidian; `astro build` turns the vault into pages with:
 
-| Feature               | What you get                                                                                |
-| --------------------- | ------------------------------------------------------------------------------------------- |
-| **Wikilinks**         | `[[Note]]`, `[[Folder/Note]]`, `[[Note#Heading]]`, `[[Note\|label]]` and aliases            |
-| **Image embeds**      | `![[image.png]]` from anywhere in the vault, optimized by Astro                             |
-| **Callouts**          | `> [!tip] Title`, including foldable ones                                                   |
-| **Backlinks**         | Every note knows which notes link to it                                                     |
-| **Navigation**        | Folder tree, breadcrumbs and previous / next links                                          |
-| **Your design**       | Content collections, `.md` and `.mdx`, no client JavaScript, unstyled components            |
-| **Ready-made pages**  | `pages: true` publishes the vault with a clean theme, dark mode and English or Spanish text |
-| **Smooth navigation** | Prefetching, page changes without reloads and hover previews of linked notes                |
+| Feature               | What you get                                                                                                |
+| --------------------- | ----------------------------------------------------------------------------------------------------------- |
+| **Wikilinks**         | `[[Note]]`, `[[Folder/Note]]`, `[[Note#Heading]]`, `[[Note\|label]]` and aliases                            |
+| **Image embeds**      | `![[image.png]]` from anywhere in the vault, optimized by Astro                                             |
+| **Callouts**          | `> [!tip] Title`, including foldable ones                                                                   |
+| **Backlinks**         | Every note knows which notes link to it                                                                     |
+| **Navigation**        | Folder tree, breadcrumbs and previous / next links                                                          |
+| **Your design**       | Content collections, `.md` and `.mdx`, unstyled components; your own pages ship no JavaScript               |
+| **Ready-made pages**  | `pages: true` publishes the vault with a clean theme, dark mode and English or Spanish text                 |
+| **Smooth navigation** | Built-in pages: prefetching, no-reload page changes and link previews, from a small script you can turn off |
 
 ![A note rendered by the built-in pages](./assets/theme-light.png)
 
@@ -39,7 +39,7 @@ Publish an [Obsidian](https://obsidian.md) vault as part of any Astro site. You 
 npx astro add astro-vault
 ```
 
-Add the collection, set `vault({ pages: true })` and write. The [quick start](./packages/astro-vault/README.md#quick-start) has the two snippets, and [`examples/pages`](./examples/pages) is the same setup ready to copy. To use your own design, see [`examples/basic`](./examples/basic).
+Add the collection, set `vault({ pages: true })` and write. Everything is resolved at build time. The built-in pages do ship some JavaScript for smooth navigation and link previews: Astro's `ClientRouter` plus a script of their own (about 2 KB gzipped). Set `navigation: false` and `previews: false` to ship none. The [quick start](./packages/astro-vault/README.md#quick-start) has the two snippets, and [`examples/pages`](./examples/pages) is the same setup ready to copy. To use your own design, see [`examples/basic`](./examples/basic).
 
 ## Repository
 
