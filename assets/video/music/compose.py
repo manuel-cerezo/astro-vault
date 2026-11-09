@@ -222,13 +222,10 @@ fx.put(pop(1170), site(90), gain=0.10)
 for fr in (135, 210, 317):
     fx.put(click(), site(fr), 0.1, 0.18)
 
-# Call to action: the command, the copy button, the star.
+# Call to action: the command and the copy button.
 type_out(TYPING['cta'], 'npx astro add astro-vault', CTA, 1)
 fx.put(click(), at(CTA, 1, 64), 0.1, 0.18)
 fx.put(bell(88), at(CTA, 1, 64) + 0.03, gain=0.07)
-fx.put(click(), at(CTA, 1, 90), -0.1, 0.18)
-fx.put(bell(93), at(CTA, 1, 90) + 0.03, gain=0.08)
-fx.put(bell(100), at(CTA, 1, 90) + 0.12, gain=0.06)
 
 reverb(fx, size=0.25, amount=0.08, seed=3)
 

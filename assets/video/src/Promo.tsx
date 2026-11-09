@@ -15,7 +15,7 @@ import TYPING from './typing.json';
  *   55–165    a wikilink typed in the editor; the note zooms out
  *   135–165   the note dissolves into characters and becomes its published page
  *   135–630   the site, driven by a cursor: preview, follow, fold, backlink, dark
- *   630–750   call to action: the command, copy, star
+ *   630–750   call to action: the command and its copy button
  *
  * music/compose.py uses the same frames: the beat drops in the middle of the
  * dissolve (frame 150) and the last chord lands on the call to action.
@@ -363,7 +363,6 @@ const Demo: React.FC = () => {
 const COMMAND = 'npx astro add astro-vault';
 // CTA frames.
 const COPY_AT = 64;
-const STAR_AT = 90;
 
 const CopyIcon: React.FC<{ done: boolean }> = ({ done }) =>
   done ? (
@@ -390,17 +389,13 @@ const CallToAction: React.FC = () => {
   const typed = COMMAND.slice(0, typedCount(TYPING.cta, f));
   const caret = f < 48 || Math.floor(f / 12) % 2 === 0;
   const copied = f >= COPY_AT;
-  const starred = f >= STAR_AT;
-  const pop = interpolate(f, [STAR_AT, STAR_AT + 4, STAR_AT + 10], [1, 1.12, 1], clamp);
   // Layout, in design pixels, for the cursor.
   const copyPos = { x: 1352, y: 592 };
-  const starPos = { x: 646, y: 702 };
   const path: Waypoint[] = [
     { at: 44, x: 1560, y: 900 },
     { at: COPY_AT - 4, x: copyPos.x, y: copyPos.y },
-    { at: COPY_AT + 6, x: copyPos.x, y: copyPos.y },
-    { at: STAR_AT - 4, x: starPos.x, y: starPos.y },
-    { at: 140, x: starPos.x + 30, y: starPos.y + 60 }
+    { at: COPY_AT + 8, x: copyPos.x, y: copyPos.y },
+    { at: 104, x: copyPos.x + 60, y: copyPos.y + 120 }
   ];
   return (
     <AbsoluteFill style={{ background: C.paper, alignItems: 'center', justifyContent: 'center', fontFamily: F.sans }}>
@@ -441,28 +436,10 @@ const CallToAction: React.FC = () => {
         </span>
         <CopyIcon done={copied} />
       </div>
-      <div style={{ ...rise(f, 14), marginTop: 34, display: 'flex', alignItems: 'center', gap: 22 }}>
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 10,
-            padding: '10px 20px',
-            border: `1px solid ${C.border}`,
-            borderRadius: 10,
-            background: '#fff',
-            fontSize: 28,
-            fontWeight: 600,
-            color: C.ink,
-            transform: `scale(${pop})`
-          }}
-        >
-          <span style={{ color: starred ? '#e3a008' : C.muted, fontSize: 30 }}>{starred ? '★' : '☆'}</span>
-          {starred ? 'Starred' : 'Star'}
-        </div>
-        <div style={{ fontFamily: F.mono, fontSize: 30, color: C.muted }}>github.com/manuel-cerezo/astro-vault</div>
+      <div style={{ ...rise(f, 14), marginTop: 34, fontFamily: F.mono, fontSize: 30, color: C.muted }}>
+        github.com/manuel-cerezo/astro-vault
       </div>
-      <Cursor f={f} path={path} clicks={[COPY_AT, STAR_AT]} show={[40, 48]} />
+      <Cursor f={f} path={path} clicks={[COPY_AT]} show={[40, 48, 96, 106]} />
     </AbsoluteFill>
   );
 };
