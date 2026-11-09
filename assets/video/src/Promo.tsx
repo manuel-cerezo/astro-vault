@@ -8,7 +8,7 @@ import { moves, useCamera } from './kit/camera';
 import { C, F } from './theme';
 
 /**
- * ~35.6 s at 30 fps, with a quiet music bed, sound effects and a closing chord. On social it often plays muted, so the explanation is
+ * ~35.6 s at 30 fps, with an upbeat soundtrack and real keyboard sounds. On social it often plays muted, so the explanation is
  * written beside the product instead of subtitled under it: a column on the
  * left says what is happening, and the product plays in a window on the right.
  * Each part runs slower than it was first timed (see SPEED) so every step can be
@@ -502,8 +502,8 @@ export const Promo: React.FC = () => {
   ];
   return (
     <AbsoluteFill style={{ background: C.paper }}>
-      {/* Sound effects and the closing chord, synthesised by music/compose.py and timed to this cut. */}
-      <Audio src={staticFile('music.mp3')} volume={0.8} />
+      {/* Music and sound effects from music/compose.py, timed to this cut. */}
+      <Audio src={staticFile('music.mp3')} />
       {scenes.map(([from, to, node]) => (
         <Sequence key={from} from={from} durationInFrames={to - from}>
           <AbsoluteFill
