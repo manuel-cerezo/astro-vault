@@ -1,5 +1,5 @@
 import React from 'react';
-import { AbsoluteFill, Easing, Img, interpolate, Sequence, staticFile, useCurrentFrame } from 'remotion';
+import { AbsoluteFill, Audio, Easing, Img, interpolate, Sequence, staticFile, useCurrentFrame } from 'remotion';
 
 import { Lockup } from './Brand';
 import { Editor } from './Editor';
@@ -7,7 +7,7 @@ import { moves, useCamera } from './kit/camera';
 import { C, F } from './theme';
 
 /**
- * ~35.6 s at 30 fps, silent. On social it plays muted, so the explanation is
+ * ~35.6 s at 30 fps, with original music. On social it often plays muted, so the explanation is
  * written beside the product instead of subtitled under it: a column on the
  * left says what is happening, and the product plays in a window on the right.
  * Each part runs slower than it was first timed (see SPEED) so every step can be
@@ -333,12 +333,20 @@ const Code: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 type Beat = { at: number; title: React.ReactNode; body: string };
 /** Demo frames. Each line comes in just before the thing it explains happens. */
 const BEATS: Beat[] = [
-  { at: 0, title: <>Link notes with <Code>[[wikilinks]]</Code></>, body: 'Exactly as you already do in Obsidian.' },
+  {
+    at: 0,
+    title: (
+      <>
+        Link notes with <Code>[[wikilinks]]</Code>
+      </>
+    ),
+    body: 'Exactly as you already do in Obsidian.'
+  },
   { at: PART.setup, title: 'One command. One option.', body: 'Turn on the built-in pages and the site is ready.' },
   { at: PART.site, title: 'Every note becomes a page.', body: 'Your folders turn into the sidebar.' },
   { at: 400, title: 'Hover a link to preview it.', body: 'A card shows the start of the linked note.' },
   { at: 480, title: 'Click, and it opens instantly.', body: 'No full reload. The sidebar stays where it was.' },
-  { at: 570, title: 'Callouts fold open.', body: 'Straight from Obsidian, with no JavaScript.' },
+  { at: 570, title: 'Callouts fold open.', body: 'Foldable callouts from Obsidian work as they are.' },
   { at: 705, title: 'Backlinks lead back.', body: 'Every note lists the notes that link to it.' },
   { at: 785, title: 'Light and dark, built in.', body: 'Both themes ship with the pages.' }
 ];
@@ -357,7 +365,15 @@ const Narrative: React.FC<{ f: number }> = ({ f }) => (
         return (
           <div key={s.label} style={{ color: C.ink, opacity: 0.28 + 0.72 * on }}>
             <span style={{ color: C.faint }}>0{i + 1}</span> {s.label}
-            <div style={{ height: 2, marginTop: 10, background: C.ink, transform: `scaleX(${on})`, transformOrigin: '0 0' }} />
+            <div
+              style={{
+                height: 2,
+                marginTop: 10,
+                background: C.ink,
+                transform: `scaleX(${on})`,
+                transformOrigin: '0 0'
+              }}
+            />
           </div>
         );
       })}
@@ -496,6 +512,8 @@ export const Promo: React.FC = () => {
   ];
   return (
     <AbsoluteFill style={{ background: C.paper }}>
+      {/* Original music, synthesised by music/compose.py and timed to this cut. */}
+      <Audio src={staticFile('music.mp3')} volume={0.6} />
       {scenes.map(([from, to, node]) => (
         <Sequence key={from} from={from} durationInFrames={to - from}>
           <AbsoluteFill

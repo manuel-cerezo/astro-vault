@@ -11,4 +11,4 @@ npm run stills   # ../banner.png, ../social.png, ../poster.png, ../logo.png
 
 The site shots in `public/` are real screenshots of `examples/pages` at 1920 × 1080 and device scale 2, light and dark. Retake them when the theme changes.
 
-The video is silent on purpose: on social networks it plays muted, so a text column beside the product explains each step. launch-video-kit also covers voice-over (an OpenAI-compatible TTS endpoint) and music with ducking, if a version with sound is needed.
+The music is original: `music/compose.py` synthesises it with numpy (no samples, nothing to license) and writes `public/music.mp3`. Social networks often play video muted, so a text column beside the product explains each step. launch-video-kit also covers voice-over (an OpenAI-compatible TTS endpoint) and music with ducking, if a version with sound is needed.
