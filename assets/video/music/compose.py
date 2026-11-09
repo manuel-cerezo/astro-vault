@@ -1,12 +1,12 @@
 """The launch video's soundtrack, timed to the cut.
 
 - Music: an upbeat house-style groove at 120 BPM, synthesised here with numpy
-  (no samples, nothing to license). It drops when the demo starts, adds a hook
-  halfway, builds under the dark-mode switch and lands on one chord under the
-  call to action.
+  (no samples, nothing to license). It builds under the typing, drops in the
+  middle of the dissolve from note to page, adds a hook, builds again under the
+  dark-mode switch and lands on one chord on the call to action.
 - Keys: real recordings of a mechanical keyboard (Cherry MX Brown) from kbsim
   by Thomas Lai, MIT licence, in music/keys/ with their LICENSE.md.
-- Cursor clicks, pops, a faint swish on scene changes and a small chime: synthesised.
+- Cursor clicks, pops, a digital crackle on the dissolve and small chimes: synthesised.
 
 Writes ../public/music.mp3 and the typing rhythm the video follows,
 ../src/typing.json. Needs numpy and ffmpeg. Run: python3 music/compose.py
@@ -22,13 +22,19 @@ import numpy as np
 HERE = os.path.dirname(os.path.abspath(__file__))
 SR = 48000
 FPS = 30
-TOTAL = 35.6 + 0.4
+TOTAL = 25.0 + 0.4
 N = int(TOTAL * SR)
 rng = np.random.default_rng(7)
 
 # Video frames where each part starts (see src/Promo.tsx).
-EDITOR, SETUP, SITE, CTA = 90, 280, 400, 947
-SPEED = {'editor': 1.25, 'setup': 1.15, 'site': 1.35}
+EDITOR, DISSOLVE, CTA = 55, 135, 630
+SITE_INTRO = 50                                   # site frames shown whole under the dissolve
+SITE_SPEED = (CTA - DISSOLVE) / (SITE_INTRO + 405)
+
+
+def site(frame):
+    """Seconds for a frame of the site part as it was first timed."""
+    return at(DISSOLVE, SITE_SPEED, frame + SITE_INTRO)
 
 
 def at(scene_start, speed, frame):
@@ -129,14 +135,16 @@ def schedule(text, start, end):
             x *= 1.4
         w.append(x)
     w = np.cumsum(w)
+    if len(w) == 1:
+        return [float(start)]
     w = (w - w[0]) / (w[-1] - w[0])
     return [round(float(start + v * (end - start)), 2) for v in w]
 
 
 TYPING = {
-    'editor': schedule('Read more about ', 4, 31) + schedule('[[', 35, 37.5) + schedule('Cal', 42, 47.5),
-    'tail': schedule(' next.', 68, 80),
-    'command': schedule('npx astro add astro-vault', 8, 46),
+    'editor': schedule('Next, read ', 5, 22) + schedule('[[', 25, 27.5) + schedule('Cal', 32, 38),
+    'tail': schedule('.', 52, 52),
+    'cta': schedule('npx astro add astro-vault', 14, 44),
 }
 with open(os.path.join(HERE, '..', 'src', 'typing.json'), 'w') as fh:
     json.dump(TYPING, fh)
@@ -188,12 +196,6 @@ def pop(f0):
     return np.sin(2 * np.pi * np.cumsum(f) / SR) * np.minimum(1, t / 0.002) * np.exp(-t / 0.05)
 
 
-def swish(dur=0.5):
-    n = int(dur * SR)
-    t = np.arange(n) / SR
-    return highpass(lowpass(rng.standard_normal(n), 3000), 900) * np.sin(np.pi * t / dur) ** 2
-
-
 def bell(note, dur=0.6):
     n = int(dur * SR)
     t = np.arange(n) / SR
@@ -201,23 +203,32 @@ def bell(note, dur=0.6):
     return np.sin(2 * np.pi * f * t + 1.5 * np.exp(-t / 0.2) * np.sin(2 * np.pi * f * 3.5 * t)) * np.exp(-t / 0.25)
 
 
-type_out(TYPING['editor'], 'Read more about [[Cal', EDITOR, SPEED['editor'])
-fx.put(pop(1040), at(EDITOR, SPEED['editor'], 37), gain=0.10)
-key(at(EDITOR, SPEED['editor'], 56), 'enter')
-type_out(TYPING['tail'], ' next.', EDITOR, SPEED['editor'])
+type_out(TYPING['editor'], 'Next, read [[Cal', EDITOR, 1)
+fx.put(pop(1040), at(EDITOR, 1, 29), gain=0.10)
+key(at(EDITOR, 1, 46), 'enter')
+type_out(TYPING['tail'], '.', EDITOR, 1)
 
-type_out(TYPING['command'], 'npx astro add astro-vault', SETUP, SPEED['setup'])
-key(at(SETUP, SPEED['setup'], 50), 'enter')
-fx.put(bell(88), at(SETUP, SPEED['setup'], 52), gain=0.10)
-fx.put(bell(93), at(SETUP, SPEED['setup'], 52) + 0.09, gain=0.10)
-fx.put(pop(980), at(SETUP, SPEED['setup'], 62), gain=0.08)
+# The dissolve: a crackle of digital noise that changes on twos, like the glyphs.
+crackle = np.zeros(int(1.0 * SR))
+for k in range(15):
+    i = int(k * 2 / FPS * SR)
+    n = int(2 / FPS * SR)
+    seg = highpass(rng.standard_normal(n), rng.uniform(2500, 6000))
+    seg = np.round(seg * 3) / 3  # a little bit-crushed
+    crackle[i:i + n] += seg * np.sin(np.pi * (k + 0.5) / 15) * rng.uniform(0.5, 1)
+fx.put(crackle, DISSOLVE / FPS, 0.0, 0.05)
 
-fx.put(pop(1170), at(SITE, SPEED['site'], 90), gain=0.10)
+fx.put(pop(1170), site(90), gain=0.10)
 for fr in (135, 210, 317):
-    fx.put(click(), at(SITE, SPEED['site'], fr), 0.1, 0.18)
+    fx.put(click(), site(fr), 0.1, 0.18)
 
-for start in (SETUP, SITE):
-    fx.put(swish(), start / FPS - 0.25, 0.2, 0.03)
+# Call to action: the command, the copy button, the star.
+type_out(TYPING['cta'], 'npx astro add astro-vault', CTA, 1)
+fx.put(click(), at(CTA, 1, 64), 0.1, 0.18)
+fx.put(bell(88), at(CTA, 1, 64) + 0.03, gain=0.07)
+fx.put(click(), at(CTA, 1, 90), -0.1, 0.18)
+fx.put(bell(93), at(CTA, 1, 90) + 0.03, gain=0.08)
+fx.put(bell(100), at(CTA, 1, 90) + 0.12, gain=0.06)
 
 reverb(fx, size=0.25, amount=0.08, seed=3)
 
@@ -227,8 +238,8 @@ BPM = 120
 BEAT = 60 / BPM
 BAR = 4 * BEAT
 S16 = BEAT / 4
-DROP = EDITOR / FPS          # the beat drops as the demo starts (3.0 s)
-END_HIT = DROP + 14 * BAR    # the last chord (31.0 s), just before the call to action
+DROP = (DISSOLVE + 15) / FPS  # the beat drops in the middle of the dissolve (5.0 s)
+END_HIT = DROP + 8 * BAR      # the last chord (21.0 s), on the call to action
 
 
 def bt(bar, pos16=0.0):
@@ -318,16 +329,19 @@ HOOK = {
 }
 
 # Intro under the title: filtered chords on the beat and a riser into the drop.
-for i in range(4):
-    b = -1 + i * 0.25
-    music.put(stab(CHORDS[0][1], 0.2, cut=500 + 500 * i), bt(b), gain=0.5)
-music.put(riser(DROP - 1.0), 1.0, gain=0.10)
+for i in range(8):
+    b = -2 + i * 0.25
+    chord = CHORDS[2][1] if i < 4 else CHORDS[3][1]
+    music.put(stab(chord, 0.2, cut=400 + 260 * i), bt(b), gain=0.5)
+for p in range(2, 16, 4):
+    drums.put(hat(), bt(-1, p), 0.3, 0.05)
+music.put(riser(2 * BEAT * 2), DROP - 2 * BEAT * 2, gain=0.10)
 drums.put(crash(), DROP, 0.0, 0.10)
 
 kicks = []
-for bar in range(14):
+for bar in range(8):
     root, voicing = CHORDS[bar % 4]
-    build = bar == 13
+    build = bar == 7
     # Drums
     for beat in range(4):
         if not (build and beat >= 2):
@@ -337,8 +351,8 @@ for bar in range(14):
         for beat in (1, 3):
             drums.put(clap(), bt(bar, beat * 4), 0.05, 0.22)
     for p in range(2, 16, 4):
-        drums.put(hat(open_=bar >= 8 and p in (6, 14)), bt(bar, p), 0.3, 0.07)
-    if bar >= 4:
+        drums.put(hat(open_=bar >= 4 and p in (6, 14)), bt(bar, p), 0.3, 0.07)
+    if bar >= 2:
         for p in range(0, 16, 2):
             if p % 4:
                 continue
@@ -354,8 +368,8 @@ for bar in range(14):
     for p, iv, ln in BASS:
         music.put(bass_note(root - 12 + iv, S16 * ln * 0.9), bt(bar, p), gain=0.42)
     # Hook from bar 4: A B A B, then A C A C.
-    if 4 <= bar < 13:
-        part = 'AB'[bar % 2] if bar < 8 else 'AC'[bar % 2]
+    if 2 <= bar < 7:
+        part = 'AB'[bar % 2] if bar < 4 else 'AC'[bar % 2]
         for p, note, ln in HOOK[part]:
             s = pluck(note, S16 * ln)
             music.put(s, bt(bar, p), 0.2, 0.16)

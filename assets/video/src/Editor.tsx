@@ -3,12 +3,19 @@ import React from 'react';
 import { C, F } from './theme';
 
 /**
- * A generic Markdown editor with the source of `Ideas/Digital garden.md`.
- * The last line is typed live (`typed`), and `suggest` shows the note picker
- * that appears after `[[`. Laid out in a 1920x1080 design space.
+ * A generic Markdown editor with the source of `Guides/Wikilinks.md`, the same
+ * note the video then shows as a published page. The last line is typed live
+ * (`typed`), and `suggest` shows the note picker that appears after `[[`.
+ * Laid out in a 1920x1080 design space.
  */
+const PAD_X = 96;
+const PAD_TOP = 64;
+const HEADER = 58;
+const LINE_H = 48;
+const CHAR_W = 19.2; // monospace at 32 px
+
 const L: React.FC<{ children?: React.ReactNode; dim?: boolean }> = ({ children, dim }) => (
-  <div style={{ minHeight: 48, color: dim ? C.editorMuted : C.editorText, whiteSpace: 'pre' }}>{children}</div>
+  <div style={{ minHeight: LINE_H, color: dim ? C.editorMuted : C.editorText, whiteSpace: 'pre' }}>{children}</div>
 );
 const Link: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <span style={{ color: C.editorLink }}>{children}</span>
@@ -18,12 +25,20 @@ const Link: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 const highlightLinks = (text: string) =>
   text.split(/(\[\[[^\]]*\]?\]?)/).map((part, i) => (part.startsWith('[[') ? <Link key={i}>{part}</Link> : part));
 
-export const Editor: React.FC<{ typed: string; caret: boolean; suggest: number; picked: boolean }> = ({
-  typed,
-  caret,
-  suggest,
-  picked
-}) => (
+/** Index of the typed line, for the camera and the picker. */
+export const TYPED_LINE = 12;
+/** Where the typed line sits in the design space. */
+export const typedLineY = PAD_TOP + HEADER + LINE_H * TYPED_LINE + LINE_H / 2;
+export const charX = (n: number) => 360 + PAD_X + CHAR_W * n;
+
+export const Editor: React.FC<{
+  typed: string;
+  caret: boolean;
+  suggest: number;
+  picked: boolean;
+  /** Characters before the `[[`, to place the picker under it. */
+  pickerAt: number;
+}> = ({ typed, caret, suggest, picked, pickerAt }) => (
   <div
     style={{
       width: 1920,
@@ -37,34 +52,48 @@ export const Editor: React.FC<{ typed: string; caret: boolean; suggest: number; 
     <div style={{ background: C.editorPanel, padding: '48px 28px', color: C.editorMuted, fontSize: 24, lineHeight: 2 }}>
       <div style={{ color: C.editorText, fontWeight: 600, marginBottom: 12 }}>notes</div>
       <div>▾ Guides</div>
-      <div style={{ paddingLeft: 28 }}>Wikilinks</div>
+      <div style={{ paddingLeft: 28, color: C.editorText, background: '#333', borderRadius: 6 }}>Wikilinks</div>
       <div style={{ paddingLeft: 28 }}>Callouts</div>
       <div>▾ Ideas</div>
-      <div style={{ paddingLeft: 28, color: C.editorText, background: '#333', borderRadius: 6 }}>Digital garden</div>
+      <div style={{ paddingLeft: 28 }}>Digital garden</div>
       <div>▸ attachments</div>
       <div>index</div>
     </div>
-    <div style={{ position: 'relative', padding: '64px 96px', fontFamily: F.mono, fontSize: 32, lineHeight: 1.5 }}>
+    <div
+      style={{
+        position: 'relative',
+        padding: `${PAD_TOP}px ${PAD_X}px`,
+        fontFamily: F.mono,
+        fontSize: 32,
+        lineHeight: 1.5
+      }}
+    >
       <div style={{ fontFamily: F.sans, color: C.editorMuted, fontSize: 22, marginBottom: 36 }}>
-        Ideas / Digital garden.md
+        Guides / Wikilinks.md
       </div>
       <L dim>---</L>
-      <L dim>tags: [ideas]</L>
+      <L dim>tags: [syntax]</L>
       <L dim>---</L>
       <L />
-      <L>Notes that grow over time, linked to each other.</L>
       <L>
-        Start with <Link>[[Wikilinks]]</Link>, then embed an image:
+        Link to a heading: <Link>[[Callouts#Foldable callouts]]</Link>
       </L>
       <L>
+        Or change the text: <Link>[[Digital garden|a custom label]]</Link>
+      </L>
+      <L />
+      <L>
         <Link>![[diagram.svg]]</Link>
+      </L>
+      <L />
+      <L>
+        Code is left alone: <span style={{ color: C.editorMuted }}>`[[Not a link]]`</span>
       </L>
       <L />
       <L>
         <span style={{ color: C.editorMuted }}>&gt; </span>
         <span style={{ color: C.editorCallout }}>[!tip]</span> Callouts become styled blocks
       </L>
-      <L />
       <L>
         {highlightLinks(typed)}
         <span
@@ -82,8 +111,8 @@ export const Editor: React.FC<{ typed: string; caret: boolean; suggest: number; 
         <div
           style={{
             position: 'absolute',
-            left: 96 + 372,
-            top: 64 + 58 + 48 * 11 + 8,
+            left: PAD_X + CHAR_W * pickerAt,
+            top: PAD_TOP + HEADER + LINE_H * (TYPED_LINE + 1) + 8,
             width: 420,
             opacity: suggest,
             transform: `translateY(${(1 - suggest) * 8}px)`,
