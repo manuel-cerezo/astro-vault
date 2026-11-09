@@ -31,7 +31,7 @@ Publish an [Obsidian](https://obsidian.md) vault as part of any Astro site. You 
 
 ![A note rendered by the built-in pages](./assets/theme-light.png)
 
-<a href="https://github.com/manuel-cerezo/astro-vault/raw/develop/assets/astro-vault-promo.mp4"><img src="./assets/poster.png" alt="Watch the 25-second overview video" width="100%"></a>
+<a href="https://github.com/manuel-cerezo/astro-vault/raw/develop/assets/astro-vault-promo.mp4"><img src="./assets/poster.png" alt="Watch the 36-second overview video" width="100%"></a>
 
 ## Get started
 

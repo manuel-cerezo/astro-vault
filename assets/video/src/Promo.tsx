@@ -4,21 +4,23 @@ import { AbsoluteFill, Easing, Img, interpolate, Sequence, staticFile, useCurren
 import { Lockup } from './Brand';
 import { Editor } from './Editor';
 import { moves, useCamera } from './kit/camera';
-import { Subtitles, type SubtitleCue } from './kit/Subtitle';
 import { C, F } from './theme';
 
 /**
- * 27.5 s at 30 fps, silent with subtitles (launch-video-kit: on social it plays
- * muted, so text carries it and subtitles only say what is not on screen).
+ * ~35.6 s at 30 fps, silent. On social it plays muted, so the explanation is
+ * written beside the product instead of subtitled under it: a column on the
+ * left says what is happening, and the product plays in a window on the right.
+ * Each part runs slower than it was first timed (see SPEED) so every step can be
+ * read before the next one starts.
  *
- *   0–75     title
- *   75–225   typing a wikilink in the editor
- *   225–315  setup: one command, one option
- *   315–720  the built site, driven by a cursor: preview a wikilink, follow it, open a
- *            foldable callout, come back through a backlink, dark mode
- *   720–825  call to action
+ *   0–90       title
+ *   90–947     the demo: write (editor), install (setup), publish (the built site)
+ *   947–1067   call to action
  */
-export const PROMO_FRAMES = 825;
+const TITLE = 90;
+const DEMO = 857;
+const OUTRO = 120;
+export const PROMO_FRAMES = TITLE + DEMO + OUTRO;
 const DESIGN = { width: 1920, height: 1080 };
 
 const clamp = { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' } as const;
@@ -70,8 +72,8 @@ const typedAt = (f: number) => {
   return out;
 };
 
-const EditorScene: React.FC = () => {
-  const f = useCurrentFrame();
+const EditorScene: React.FC<{ speed: number }> = ({ speed }) => {
+  const f = useCurrentFrame() / speed;
   const cam = useCamera(
     moves([
       { at: 0, fx: 1120, fy: 560, s: 1.15 },
@@ -112,17 +114,14 @@ const Card: React.FC<{ title: string; children: React.ReactNode; style?: React.C
   </div>
 );
 
-const Setup: React.FC = () => {
-  const f = useCurrentFrame();
+const Setup: React.FC<{ speed: number }> = ({ speed }) => {
+  const f = useCurrentFrame() / speed;
   const typed = COMMAND.slice(0, Math.max(0, Math.floor((f - 10) / 1.1)));
   const done = f >= 42;
   const option = interpolate(f, [54, 64], [0, 1], clamp);
   return (
-    <AbsoluteFill style={{ background: C.paper, padding: '130px 220px', fontFamily: F.sans }}>
-      <div style={{ ...rise(f, 0), fontFamily: F.serif, fontSize: 76, letterSpacing: '-0.02em', color: C.ink }}>
-        One command. One option.
-      </div>
-      <Card title="Terminal" style={{ ...rise(f, 4), marginTop: 60 }}>
+    <AbsoluteFill style={{ justifyContent: 'center', fontFamily: F.sans }}>
+      <Card title="Terminal" style={rise(f, 0)}>
         <span style={{ color: C.faint }}>$</span> {typed}
         <div style={{ opacity: done ? 1 : 0, color: '#16804a', fontSize: 28 }}>
           ✓ Added astro-vault to astro.config.mjs
@@ -133,7 +132,7 @@ const Setup: React.FC = () => {
         <span
           style={{
             color: C.accent,
-            background: `rgba(43,89,195,${0.1 * option})`,
+            background: `rgba(43,89,195,${0.12 * option})`,
             borderRadius: 6,
             padding: '0 6px'
           }}
@@ -201,7 +200,7 @@ const Cursor: React.FC<{ f: number; camScale: number }> = ({ f, camScale }) => {
         left: x,
         top: y,
         opacity: visible,
-        transform: `scale(${1 / camScale})`,
+        transform: `scale(${1.35 / camScale})`,
         transformOrigin: '0 0',
         zIndex: 20
       }}
@@ -240,8 +239,8 @@ const Cursor: React.FC<{ f: number; camScale: number }> = ({ f, camScale }) => {
   );
 };
 
-const SiteScene: React.FC = () => {
-  const f = useCurrentFrame();
+const SiteScene: React.FC<{ speed: number }> = ({ speed }) => {
+  const f = useCurrentFrame() / speed;
   const cam = useCamera(
     moves([
       { at: 0, fx: 940, fy: 300, s: 1.6 },
@@ -311,31 +310,189 @@ const CallToAction: React.FC = () => {
         github.com/manuel-cerezo/astro-vault
       </div>
       <div style={{ ...rise(f, 32), marginTop: 18, fontSize: 28, color: C.faint }}>Open source · MIT · Astro 7</div>
-      <div style={{ ...rise(f, 40), position: 'absolute', bottom: 48, fontSize: 22, color: C.faint }}>
-        Video made with launch-video-kit by Borja Pérez (@borjaperfra)
-      </div>
     </AbsoluteFill>
   );
 };
 
-/** Absolute frames. Only what is not already written on screen. */
-const CUES: readonly SubtitleCue[] = [
-  { at: 145, dur: 76, text: 'Link notes with [[wikilinks]], exactly as in Obsidian.' },
-  { at: 322, dur: 70, text: 'Every note becomes a page.' },
-  { at: 408, dur: 48, text: 'Hover a link to preview the note.' },
-  { at: 462, dur: 52, text: 'Click, and it opens without reloading.' },
-  { at: 535, dur: 68, text: 'Callouts fold open, no JavaScript needed.' },
-  { at: 677, dur: 42, text: 'Light and dark, built in.' }
+/* 6. The demo: what is happening on the left, the product on the right */
+
+// Each part plays slower than it was timed, so every step can be read.
+const SPEED = { editor: 1.25, setup: 1.15, site: 1.35 };
+// Where each part starts, in demo frames.
+const PART = { editor: 0, setup: 190, site: 310 };
+
+const WIN = { x: 580, w: 1240, bar: 44 };
+const WIN_SCALE = WIN.w / DESIGN.width;
+const WIN_H = Math.round(DESIGN.height * WIN_SCALE);
+const WIN_Y = Math.round((DESIGN.height - WIN_H - WIN.bar) / 2);
+
+const Code: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <span style={{ fontFamily: F.mono, fontSize: '0.8em', color: C.accent, letterSpacing: 0 }}>{children}</span>
+);
+
+type Beat = { at: number; title: React.ReactNode; body: string };
+/** Demo frames. Each line comes in just before the thing it explains happens. */
+const BEATS: Beat[] = [
+  { at: 0, title: <>Link notes with <Code>[[wikilinks]]</Code></>, body: 'Exactly as you already do in Obsidian.' },
+  { at: PART.setup, title: 'One command. One option.', body: 'Turn on the built-in pages and the site is ready.' },
+  { at: PART.site, title: 'Every note becomes a page.', body: 'Your folders turn into the sidebar.' },
+  { at: 400, title: 'Hover a link to preview it.', body: 'A card shows the start of the linked note.' },
+  { at: 480, title: 'Click, and it opens instantly.', body: 'No full reload. The sidebar stays where it was.' },
+  { at: 570, title: 'Callouts fold open.', body: 'Straight from Obsidian, with no JavaScript.' },
+  { at: 705, title: 'Backlinks lead back.', body: 'Every note lists the notes that link to it.' },
+  { at: 785, title: 'Light and dark, built in.', body: 'Both themes ship with the pages.' }
 ];
+
+const STEPS = [
+  { label: 'Write', from: PART.editor, to: PART.setup },
+  { label: 'Install', from: PART.setup, to: PART.site },
+  { label: 'Publish', from: PART.site, to: Infinity }
+];
+
+const Narrative: React.FC<{ f: number }> = ({ f }) => (
+  <div style={{ position: 'absolute', left: 120, top: WIN_Y, width: 400, height: WIN_H + WIN.bar }}>
+    <div style={{ display: 'flex', gap: 22, fontFamily: F.mono, fontSize: 20, whiteSpace: 'nowrap' }}>
+      {STEPS.map((s, i) => {
+        const on = span(f, s.from - 1, s.from + 10, s.to, s.to + 10);
+        return (
+          <div key={s.label} style={{ color: C.ink, opacity: 0.28 + 0.72 * on }}>
+            <span style={{ color: C.faint }}>0{i + 1}</span> {s.label}
+            <div style={{ height: 2, marginTop: 10, background: C.ink, transform: `scaleX(${on})`, transformOrigin: '0 0' }} />
+          </div>
+        );
+      })}
+    </div>
+    {BEATS.map((b, i) => {
+      const end = BEATS[i + 1]?.at ?? DEMO + 20;
+      const enter = i === 0 ? 1 : interpolate(f, [b.at, b.at + 16], [0, 1], smooth);
+      const exit = interpolate(f, [end - 10, end], [0, 1], smooth);
+      if (f < b.at || f >= end) return null;
+      return (
+        <div
+          key={b.at}
+          style={{
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            top: 200,
+            opacity: enter * (1 - exit),
+            transform: `translateY(${(1 - enter) * 22 - exit * 12}px)`
+          }}
+        >
+          <div style={{ fontFamily: F.serif, fontSize: 58, lineHeight: 1.12, letterSpacing: '-0.02em', color: C.ink }}>
+            {b.title}
+          </div>
+          <div style={{ marginTop: 24, fontFamily: F.sans, fontSize: 29, lineHeight: 1.45, color: C.muted }}>
+            {b.body}
+          </div>
+        </div>
+      );
+    })}
+  </div>
+);
+
+const Window: React.FC<{ label: string; dark?: boolean; opacity: number; children: React.ReactNode }> = ({
+  label,
+  dark,
+  opacity,
+  children
+}) =>
+  opacity <= 0 ? null : (
+    <div
+      style={{
+        position: 'absolute',
+        left: WIN.x,
+        top: WIN_Y,
+        width: WIN.w,
+        opacity,
+        borderRadius: 14,
+        overflow: 'hidden',
+        border: `1px solid ${dark ? '#3a3a3a' : C.border}`,
+        background: dark ? C.editorBg : C.paper,
+        boxShadow: '0 30px 80px rgba(36,35,31,0.16), 0 4px 14px rgba(36,35,31,0.08)'
+      }}
+    >
+      <div
+        style={{
+          height: WIN.bar,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          padding: '0 18px',
+          background: dark ? '#2a2a2a' : C.surface,
+          borderBottom: `1px solid ${dark ? '#3a3a3a' : C.border}`
+        }}
+      >
+        {[0, 1, 2].map((i) => (
+          <div key={i} style={{ width: 12, height: 12, borderRadius: 6, background: dark ? '#4a4a4a' : '#d9d5cc' }} />
+        ))}
+        <div
+          style={{
+            flex: 1,
+            marginRight: 52,
+            textAlign: 'center',
+            fontFamily: F.sans,
+            fontSize: 18,
+            color: dark ? C.editorMuted : C.muted
+          }}
+        >
+          {label}
+        </div>
+      </div>
+      <div style={{ position: 'relative', width: WIN.w, height: WIN_H, overflow: 'hidden' }}>
+        <div
+          style={{
+            position: 'absolute',
+            ...DESIGN,
+            transform: `scale(${WIN_SCALE})`,
+            transformOrigin: '0 0'
+          }}
+        >
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+
+const Demo: React.FC = () => {
+  const f = useCurrentFrame();
+  return (
+    <AbsoluteFill style={{ background: C.paper }}>
+      <Narrative f={f} />
+      <Window label="Ideas / Digital garden.md" dark opacity={span(f, -1, 0, PART.setup - 8, PART.setup + 4)}>
+        <Sequence durationInFrames={PART.setup + 4} layout="none">
+          <EditorScene speed={SPEED.editor} />
+        </Sequence>
+      </Window>
+      <Sequence from={PART.setup - 4} durationInFrames={PART.site - PART.setup + 8} layout="none">
+        <div
+          style={{
+            position: 'absolute',
+            left: WIN.x,
+            top: 0,
+            width: WIN.w,
+            height: DESIGN.height,
+            opacity: span(f, PART.setup - 4, PART.setup + 8, PART.site - 4, PART.site + 4)
+          }}
+        >
+          <Setup speed={SPEED.setup} />
+        </div>
+      </Sequence>
+      <Window label="localhost:4321/notes" opacity={span(f, PART.site - 4, PART.site + 10)}>
+        <Sequence from={PART.site} layout="none">
+          <SiteScene speed={SPEED.site} />
+        </Sequence>
+      </Window>
+    </AbsoluteFill>
+  );
+};
 
 export const Promo: React.FC = () => {
   const frame = useCurrentFrame();
   const scenes: [number, number, React.ReactNode][] = [
-    [0, 75, <Title />],
-    [75, 225, <EditorScene />],
-    [225, 315, <Setup />],
-    [315, 720, <SiteScene />],
-    [720, PROMO_FRAMES + 10, <CallToAction />]
+    [0, TITLE, <Title />],
+    [TITLE, TITLE + DEMO, <Demo />],
+    [TITLE + DEMO, PROMO_FRAMES + 10, <CallToAction />]
   ];
   return (
     <AbsoluteFill style={{ background: C.paper }}>
@@ -343,14 +500,13 @@ export const Promo: React.FC = () => {
         <Sequence key={from} from={from} durationInFrames={to - from}>
           <AbsoluteFill
             style={{
-              opacity: interpolate(frame, [from, from + 8, to - 8, to], [from === 0 ? 1 : 0, 1, 1, 0], clamp)
+              opacity: interpolate(frame, [from, from + 10, to - 10, to], [from === 0 ? 1 : 0, 1, 1, 0], clamp)
             }}
           >
             {node}
           </AbsoluteFill>
         </Sequence>
       ))}
-      <Subtitles cues={CUES} fontFamily={F.sans} />
     </AbsoluteFill>
   );
 };

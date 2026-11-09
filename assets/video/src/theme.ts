@@ -16,9 +16,9 @@ export const C = {
 };
 
 export const F = {
-  serif: "'Iowan Old Style', Charter, 'Sitka Text', Cambria, Georgia, serif",
-  sans: "'Segoe UI Variable Display', 'Segoe UI', system-ui, sans-serif",
-  mono: "'Cascadia Code', 'Cascadia Mono', Consolas, monospace"
+  serif: "'Iowan Old Style', Charter, 'Bitstream Charter', 'Sitka Text', Cambria, Georgia, serif",
+  sans: "'Segoe UI Variable Display', 'Segoe UI', Inter, system-ui, sans-serif",
+  mono: "'Cascadia Code', 'Cascadia Mono', Consolas, 'JetBrains Mono', monospace"
 };
 
 export const FPS = 30;
