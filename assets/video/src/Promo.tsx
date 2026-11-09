@@ -5,14 +5,14 @@ import { Lockup } from './Brand';
 import { charX, Editor, typedLineY } from './Editor';
 import { moves, useCamera } from './kit/camera';
 import { C, F } from './theme';
-import TYPING from './typing.json';
+import TIMING from './timing.json';
 
 /**
  * 25 s at 30 fps, with a soundtrack from music/compose.py. No captions: the
  * product tells the story, full screen.
  *
- *   0–55      title
- *   55–165    a wikilink typed in the editor; the note zooms out
+ *   0–60      title
+ *   60–165    a wikilink typed in the editor; the note zooms out
  *   135–165   the note dissolves into characters and becomes its published page
  *   135–630   the site, driven by a cursor: preview, follow, fold, backlink, dark
  *   630–750   call to action: the command and its copy button
@@ -20,13 +20,25 @@ import TYPING from './typing.json';
  * music/compose.py uses the same frames: the beat drops in the middle of the
  * dissolve (frame 150) and the last chord lands on the call to action.
  */
-export const TIMELINE = { editor: 55, dissolve: 135, cta: 630, end: 750 };
+export const TIMELINE = { editor: 60, dissolve: 135, cta: 630, end: 750 };
 export const PROMO_FRAMES = TIMELINE.end;
 const DISSOLVE = 30;
 /** Site frames shown full size under the dissolve before the camera moves in. */
 export const SITE_INTRO = 50;
-/** The site part was timed at 30 fps; it plays a little slower to fill its slot. */
-export const SITE_SPEED = (TIMELINE.cta - TIMELINE.dissolve) / (SITE_INTRO + 405);
+/**
+ * The beat is every 15 frames (120 BPM), and cuts and clicks land on it. The site
+ * part was first timed in its own frames; music/compose.py maps video frames
+ * since the dissolve to those site frames so the link preview, the clicks and
+ * the dark mode fall on beats.
+ */
+const SITE_WARP = TIMING.siteWarp as [number, number][];
+const siteFrame = (d: number) =>
+  interpolate(
+    d,
+    SITE_WARP.map(([v]) => v),
+    SITE_WARP.map(([, f]) => f)
+  );
+const TYPING = TIMING.typing;
 
 const DESIGN = { width: 1920, height: 1080 };
 const clamp = { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' } as const;
@@ -141,7 +153,7 @@ const typedCount = (times: number[], f: number) => times.filter((t) => t <= f).l
 const LEAD = 'Next, read ';
 const BEFORE_PICK = `${LEAD}[[Cal`;
 const COMPLETED = `${LEAD}[[Callouts]]`;
-const PICK = 46;
+const PICK = 45;
 
 const typedAt = (f: number) =>
   f >= PICK ? COMPLETED + '.'.slice(0, typedCount(TYPING.tail, f)) : BEFORE_PICK.slice(0, typedCount(TYPING.editor, f));
@@ -153,17 +165,17 @@ const EditorScene: React.FC = () => {
     moves(
       [
         { at: 0, fx: charX(10), fy, s: 1.5 },
-        { at: 56, fx: charX(10), fy, s: 1.5 },
-        { at: 76, fx: 960, fy: 540, s: 1 }
+        { at: 52, fx: charX(10), fy, s: 1.5 },
+        { at: 72, fx: 960, fy: 540, s: 1 }
       ],
       20
     ),
     f,
     DESIGN
   );
-  const typing = (f >= 4 && f < 42) || (f >= 50 && f < 56);
+  const typing = (f >= 4 && f < 42) || (f >= 48 && f < 54);
   const caret = typing || Math.floor(f / 15) % 2 === 0;
-  const suggest = f < 29 ? 0 : f < PICK + 6 ? interpolate(f, [29, 34], [0, 1], clamp) : 0;
+  const suggest = f < 30 ? 0 : f < PICK + 6 ? interpolate(f, [30, 35], [0, 1], clamp) : 0;
   return (
     <AbsoluteFill style={{ background: C.editorBg }}>
       <div style={{ ...DESIGN, transform: cam.transform, transformOrigin: '0 0' }}>
@@ -284,7 +296,7 @@ export const SITE_CLICKS = [135, 210, 317];
 
 const SiteScene: React.FC = () => {
   // Site frames: negative while the page is still shown whole under the dissolve.
-  const f = useCurrentFrame() / SITE_SPEED - SITE_INTRO;
+  const f = siteFrame(useCurrentFrame());
   const cam = useCamera(
     moves([
       { at: -SITE_INTRO, fx: 960, fy: 540, s: 1 },
@@ -362,7 +374,7 @@ const Demo: React.FC = () => {
 
 const COMMAND = 'npx astro add astro-vault';
 // CTA frames.
-const COPY_AT = 64;
+const COPY_AT = 60;
 
 const CopyIcon: React.FC<{ done: boolean }> = ({ done }) =>
   done ? (

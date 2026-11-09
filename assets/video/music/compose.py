@@ -9,7 +9,7 @@
 - Cursor clicks, pops, a digital crackle on the dissolve and small chimes: synthesised.
 
 Writes ../public/music.mp3 and the typing rhythm the video follows,
-../src/typing.json. Needs numpy and ffmpeg. Run: python3 music/compose.py
+../src/timing.json. Needs numpy and ffmpeg. Run: python3 music/compose.py
 """
 import json
 import os
@@ -27,14 +27,18 @@ N = int(TOTAL * SR)
 rng = np.random.default_rng(7)
 
 # Video frames where each part starts (see src/Promo.tsx).
-EDITOR, DISSOLVE, CTA = 55, 135, 630
-SITE_INTRO = 50                                   # site frames shown whole under the dissolve
-SITE_SPEED = (CTA - DISSOLVE) / (SITE_INTRO + 405)
+EDITOR, DISSOLVE, CTA = 60, 135, 630
+# The beat is every 15 frames (120 BPM at 30 fps, counted from frame 0), and
+# every cut and click lands on it. The site part was first timed in its own
+# frames; this maps video frames since the dissolve to site frames, pinning the
+# link preview, the three clicks and the dark mode to beats.
+SITE_WARP = [(0, -50), (150, 90), (195, 135), (285, 210), (405, 317), (450, 363), (495, 405)]
 
 
 def site(frame):
     """Seconds for a frame of the site part as it was first timed."""
-    return at(DISSOLVE, SITE_SPEED, frame + SITE_INTRO)
+    d = np.interp(frame, [f for _, f in SITE_WARP], [d for d, _ in SITE_WARP])
+    return (DISSOLVE + d) / FPS
 
 
 def at(scene_start, speed, frame):
@@ -143,11 +147,11 @@ def schedule(text, start, end):
 
 TYPING = {
     'editor': schedule('Next, read ', 5, 22) + schedule('[[', 25, 27.5) + schedule('Cal', 32, 38),
-    'tail': schedule('.', 52, 52),
+    'tail': schedule('.', 50, 50),
     'cta': schedule('npx astro add astro-vault', 14, 44),
 }
-with open(os.path.join(HERE, '..', 'src', 'typing.json'), 'w') as fh:
-    json.dump(TYPING, fh)
+with open(os.path.join(HERE, '..', 'src', 'timing.json'), 'w') as fh:
+    json.dump({'typing': TYPING, 'siteWarp': SITE_WARP}, fh)
     fh.write('\n')
 
 # --- sound effects -------------------------------------------------------------
@@ -204,8 +208,8 @@ def bell(note, dur=0.6):
 
 
 type_out(TYPING['editor'], 'Next, read [[Cal', EDITOR, 1)
-fx.put(pop(1040), at(EDITOR, 1, 29), gain=0.10)
-key(at(EDITOR, 1, 46), 'enter')
+fx.put(pop(1040), at(EDITOR, 1, 30), gain=0.10)
+key(at(EDITOR, 1, 45), 'enter')
 type_out(TYPING['tail'], '.', EDITOR, 1)
 
 # The dissolve: a crackle of digital noise that changes on twos, like the glyphs.
@@ -224,8 +228,8 @@ for fr in (135, 210, 317):
 
 # Call to action: the command and the copy button.
 type_out(TYPING['cta'], 'npx astro add astro-vault', CTA, 1)
-fx.put(click(), at(CTA, 1, 64), 0.1, 0.18)
-fx.put(bell(88), at(CTA, 1, 64) + 0.03, gain=0.07)
+fx.put(click(), at(CTA, 1, 60), 0.1, 0.18)
+fx.put(bell(88), at(CTA, 1, 60) + 0.03, gain=0.07)
 
 reverb(fx, size=0.25, amount=0.08, seed=3)
 
